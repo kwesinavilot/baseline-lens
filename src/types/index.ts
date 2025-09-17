@@ -68,3 +68,27 @@ export interface WebFeatureDetails {
     spec_url?: string;
     baseline: BaselineStatus;
 }
+
+export interface BaseAnalyzer {
+    analyze(content: string, document: vscode.TextDocument): Promise<DetectedFeature[]>;
+    getSupportedLanguages(): string[];
+}
+
+export interface ProjectAnalysisResult {
+    totalFiles: number;
+    analyzedFiles: number;
+    features: DetectedFeature[];
+    errors: AnalysisError[];
+    summary: {
+        widelyAvailable: number;
+        newlyAvailable: number;
+        limitedAvailability: number;
+    };
+}
+
+export interface AnalysisError {
+    file: string;
+    error: string;
+    line?: number;
+    column?: number;
+}

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
+import { DetectedFeature, AnalysisResult, BaselineStatus } from '../types';
 
 export class UIService {
     private diagnosticCollection: vscode.DiagnosticCollection;
-
-    constructor() {
+    private decorationTypes: Map<string, vscode.TextEditorDecorati
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('baseline-lens');
     }
 

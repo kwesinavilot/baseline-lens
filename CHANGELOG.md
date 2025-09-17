@@ -5,7 +5,31 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2025-09-17
+
+### Added
+- Complete CSS feature analyzer with PostCSS integration
+  - Detection of CSS properties (Grid, Flexbox, custom properties, modern layout features)
+  - CSS selector analysis (modern pseudo-classes like `:has`, `:focus-visible`, pseudo-elements)
+  - CSS at-rule detection (`@media`, `@container`, `@keyframes`, `@layer`)
+  - CSS function analysis (`clamp()`, `min()`, `max()`, `calc()`, gradients, color functions)
+  - CSS-in-JS support for styled-components and emotion
+  - Comprehensive feature mapping to web-features identifiers
+  - Extensive unit test coverage for all CSS feature detection scenarios
+
+- Complete JavaScript feature analyzer with Acorn AST parsing
+  - Web API detection and modern JavaScript syntax analysis
+  - TypeScript and JSX support
+  - Built-in object and method detection
+  - Feature mapping to web-features identifiers
+  - Comprehensive unit tests for JavaScript feature scenarios
+
+- Complete HTML feature analyzer with parse5 integration
+  - HTML element and attribute detection
+  - Input type analysis and form feature detection
+  - Framework template syntax support (Vue, Angular, Svelte)
+  - Inline CSS and JavaScript extraction and analysis
+  - Comprehensive unit tests for HTML feature detection
 
 ## [0.2.0] - 2025-09-17
 
