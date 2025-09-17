@@ -47,6 +47,18 @@
         "command": "baseline-lens.toggleInlineIndicators",
         "title": "Toggle Inline Indicators",
         "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.showPolyfillInfo",
+        "title": "Show Polyfill Information"
+      },
+      {
+        "command": "baseline-lens.showEducationalInfo",
+        "title": "Show Educational Information"
+      },
+      {
+        "command": "baseline-lens.openDocumentation",
+        "title": "Open Documentation"
       }
     ],
     "menus": {

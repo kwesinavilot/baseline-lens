@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { DetectedFeature, AnalysisResult, BaselineStatus } from '../types';
 import { HoverProvider } from './hoverProvider';
 import { CompatibilityDataService } from './compatibilityService';
+import { SuggestionEngine } from './suggestionEngine';
+import { BaselineLensCodeActionProvider, CodeActionCommands } from './codeActionProvider';
 
 export class UIService {
     private diagnosticCollection: vscode.DiagnosticCollection;
@@ -9,14 +11,20 @@ export class UIService {
     private activeDecorations: Map<string, vscode.DecorationOptions[]>;
     private hoverProvider: HoverProvider;
     private hoverProviderDisposable: vscode.Disposable | undefined;
+    private suggestionEngine: SuggestionEngine;
+    private codeActionProvider: BaselineLensCodeActionProvider;
+    private codeActionProviderDisposable: vscode.Disposable | undefined;
 
     constructor(compatibilityService: CompatibilityDataService) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('baseline-lens');
         this.decorationTypes = new Map();
         this.activeDecorations = new Map();
         this.hoverProvider = new HoverProvider(compatibilityService);
+        this.suggestionEngine = new SuggestionEngine(compatibilityService);
+        this.codeActionProvider = new BaselineLensCodeActionProvider(this.suggestionEngine);
         this.initializeDecorationTypes();
         this.registerHoverProvider();
+        this.registerCodeActionProvider();
     }
 
     private initializeDecorationTypes(): void {
@@ -68,6 +76,28 @@ export class UIService {
     }
 
     /**
+     * Register code action provider for all supported languages
+     */
+    private registerCodeActionProvider(): void {
+        const supportedLanguages = [
+            'css', 'scss', 'less', 'sass',
+            'javascript', 'typescript', 'javascriptreact', 'typescriptreact',
+            'html', 'vue', 'svelte'
+        ];
+
+        this.codeActionProviderDisposable = vscode.languages.registerCodeActionsProvider(
+            supportedLanguages,
+            this.codeActionProvider,
+            {
+                providedCodeActionKinds: [
+                    vscode.CodeActionKind.QuickFix,
+                    vscode.CodeActionKind.Empty
+                ]
+            }
+        );
+    }
+
+    /**
      * Convert detected features to VS Code diagnostics
      */
     createDiagnosticsFromFeatures(features: DetectedFeature[]): vscode.Diagnostic[] {
@@ -111,6 +141,13 @@ export class UIService {
         // Add context if available
         if (feature.context) {
             message += ` - ${feature.context}`;
+        }
+
+        // Add suggestion hint for risky features
+        if (feature.baselineStatus.status === 'newly_available') {
+            message += '. Consider providing fallbacks for older browsers.';
+        } else if (feature.baselineStatus.status === 'limited_availability') {
+            message += '. Consider using alternatives or polyfills.';
         }
 
         return message;
@@ -250,6 +287,9 @@ export class UIService {
         
         // Update hover provider with new features
         this.hoverProvider.updateFeatures(document, features);
+        
+        // Update code action provider with new features
+        this.codeActionProvider.updateFeatures(document, features);
     }
 
     updateDecorations(document: vscode.TextDocument, features: DetectedFeature[]): void {
@@ -287,6 +327,9 @@ export class UIService {
         
         // Clear hover provider features for this document
         this.hoverProvider.clearFeatures(document);
+        
+        // Clear code action provider features for this document
+        this.codeActionProvider.clearFeatures(document);
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | null {
@@ -296,7 +339,27 @@ export class UIService {
     }
 
     registerCommands(context: vscode.ExtensionContext): void {
-        // TODO: Register extension commands in later tasks
+        // Register code action commands
+        const showPolyfillInfoCommand = vscode.commands.registerCommand(
+            'baseline-lens.showPolyfillInfo',
+            CodeActionCommands.showPolyfillInfo
+        );
+
+        const showEducationalInfoCommand = vscode.commands.registerCommand(
+            'baseline-lens.showEducationalInfo',
+            CodeActionCommands.showEducationalInfo
+        );
+
+        const openDocumentationCommand = vscode.commands.registerCommand(
+            'baseline-lens.openDocumentation',
+            CodeActionCommands.openDocumentation
+        );
+
+        context.subscriptions.push(
+            showPolyfillInfoCommand,
+            showEducationalInfoCommand,
+            openDocumentationCommand
+        );
     }
 
     dispose(): void {
@@ -314,5 +377,10 @@ export class UIService {
             this.hoverProviderDisposable.dispose();
         }
         this.hoverProvider.dispose();
+        
+        // Dispose code action provider
+        if (this.codeActionProviderDisposable) {
+            this.codeActionProviderDisposable.dispose();
+        }
     }
 }

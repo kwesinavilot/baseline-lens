@@ -78,7 +78,14 @@ export class AnalysisEngine {
                 try {
                     const document = await vscode.workspace.openTextDocument(fileUri);
                     const result = await this.analyzeDocument(document);
-                    allFeatures.push(...result.features);
+                    
+                    // Add file path to each detected feature
+                    const featuresWithPath = result.features.map(feature => ({
+                        ...feature,
+                        filePath: fileUri.fsPath
+                    }));
+                    
+                    allFeatures.push(...featuresWithPath);
                     analyzedFiles++;
                 } catch (error) {
                     errors.push({

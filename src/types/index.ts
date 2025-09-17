@@ -8,6 +8,7 @@ export interface DetectedFeature {
     baselineStatus: BaselineStatus;
     context?: string;
     severity: 'error' | 'warning' | 'info';
+    filePath?: string;
 }
 
 export interface BaselineStatus {
@@ -91,4 +92,44 @@ export interface AnalysisError {
     error: string;
     line?: number;
     column?: number;
+}
+
+export interface CompatibilityReport {
+    summary: ReportSummary;
+    features: FeatureUsage[];
+    recommendations: string[];
+    generatedAt: Date;
+    projectPath: string;
+    totalFiles: number;
+    analyzedFiles: number;
+    errors: AnalysisError[];
+}
+
+export interface ReportSummary {
+    totalFeatures: number;
+    widelyAvailable: number;
+    newlyAvailable: number;
+    limitedAvailability: number;
+    riskDistribution: {
+        low: number;
+        medium: number;
+        high: number;
+    };
+    fileTypeBreakdown: {
+        [fileType: string]: number;
+    };
+}
+
+export interface FeatureUsage {
+    feature: WebFeatureDetails;
+    locations: FileLocation[];
+    riskLevel: 'low' | 'medium' | 'high';
+    usageCount: number;
+}
+
+export interface FileLocation {
+    filePath: string;
+    line: number;
+    column: number;
+    context?: string;
 }

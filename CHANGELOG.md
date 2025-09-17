@@ -5,6 +5,33 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-09-17
+
+### Added
+- Smart suggestion engine for risky web features with safer alternatives
+  - Intelligent risk assessment based on baseline status (low/medium/high)
+  - Feature-specific fallback mappings for CSS Grid, CSS Variables, Fetch API, and ES6 modules
+  - Comprehensive polyfill suggestions with installation commands and usage examples
+  - Educational hints explaining feature availability and best practices
+  - Generic alternatives for CSS (progressive enhancement), JavaScript (feature detection), and HTML (graceful degradation)
+
+- VS Code code action provider for quick fixes and fallback snippets
+  - Quick fix actions to replace risky features with safer alternatives
+  - Polyfill installation guidance with copy-to-clipboard functionality
+  - Educational webview panels with detailed feature information and recommendations
+  - External documentation links to MDN Web Docs and Can I Use
+  - Integration with VS Code's diagnostic system for actionable suggestions
+
+- Enhanced diagnostic messages with contextual recommendations
+  - Improved diagnostic text with specific guidance for newly available and limited availability features
+  - Integration between suggestion engine and code action provider
+  - Automatic feature updates for hover and code action providers
+
+### Changed
+- Enhanced UIService with suggestion engine and code action provider integration
+- Updated package.json with new command definitions for suggestion features
+- Improved diagnostic creation with actionable recommendations
+
 ## [0.3.0] - 2025-09-17
 
 ### Added
