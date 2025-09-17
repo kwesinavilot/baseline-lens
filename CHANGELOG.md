@@ -31,6 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Inline CSS and JavaScript extraction and analysis
   - Comprehensive unit tests for HTML feature detection
 
+- Advanced hover provider for detailed compatibility information
+  - Rich hover tooltips with browser/version breakdown and baseline status
+  - Educational content explaining feature availability and recommendations
+  - Quick links to MDN documentation, specifications, Can I Use, and polyfill resources
+  - Performance-optimized caching system with automatic cleanup
+  - Comprehensive browser support tables with visual indicators
+  - Context-aware recommendations based on feature status and type
+
 ## [0.2.0] - 2025-09-17
 
 ### Added

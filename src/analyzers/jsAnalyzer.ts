@@ -18,6 +18,7 @@ interface AcornNode extends Node {
     right?: AcornNode;
     operator?: string;
     argument?: AcornNode;
+    optional?: boolean;
     arguments?: AcornNode[];
     body?: AcornNode | AcornNode[];
     declarations?: AcornNode[];

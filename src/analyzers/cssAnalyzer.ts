@@ -4,10 +4,10 @@ import { DetectedFeature, BaselineStatus } from '../types';
 import { AbstractBaseAnalyzer } from './baseAnalyzer';
 
 export class CSSAnalyzer extends AbstractBaseAnalyzer {
-    private cssFeatureMap: Map<string, string>;
-    private cssFunctionMap: Map<string, string>;
-    private cssAtRuleMap: Map<string, string>;
-    private cssSelectorMap: Map<string, string>;
+    private cssFeatureMap!: Map<string, string>;
+    private cssFunctionMap!: Map<string, string>;
+    private cssAtRuleMap!: Map<string, string>;
+    private cssSelectorMap!: Map<string, string>;
 
     constructor() {
         super(['css', 'scss', 'sass', 'less', 'stylus']);

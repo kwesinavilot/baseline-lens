@@ -1,0 +1,83 @@
+/* Test CSS file with various baseline compatibility features */
+
+/* Widely available features - should show green checkmark */
+.widely-available {
+    display: flex;
+    background-color: #ff0000;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Newly available features - should show yellow warning */
+.newly-available {
+    container-type: inline-size;
+    aspect-ratio: 16/9;
+    gap: 1rem;
+}
+
+/* Limited availability features - should show red X */
+.limited-availability {
+    view-transition-name: slide;
+    anchor-name: --my-anchor;
+    position-anchor: --my-anchor;
+}
+
+/* CSS Grid - widely available */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+}
+
+/* CSS Custom Properties - widely available */
+:root {
+    --primary-color: #007acc;
+    --secondary-color: #ff6b6b;
+}
+
+.custom-props {
+    color: var(--primary-color);
+    background: var(--secondary-color);
+}
+
+/* CSS Logical Properties - newly available */
+.logical-props {
+    margin-inline-start: 1rem;
+    padding-block-end: 2rem;
+    border-inline-width: 2px;
+}
+
+/* CSS Subgrid - limited availability */
+.subgrid {
+    display: grid;
+    grid-template-columns: subgrid;
+}
+
+/* CSS Nesting - newly available */
+.nesting-example {
+    color: blue;
+    
+    &:hover {
+        color: red;
+    }
+    
+    .nested {
+        font-weight: bold;
+    }
+}
+
+/* CSS Container Queries - newly available */
+@container (min-width: 300px) {
+    .container-query-target {
+        font-size: 1.2em;
+    }
+}
+
+/* CSS Cascade Layers - newly available */
+@layer base, components, utilities;
+
+@layer base {
+    body {
+        margin: 0;
+    }
+}

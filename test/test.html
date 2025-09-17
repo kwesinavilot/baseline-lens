@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseline Lens Test HTML</title>
+    <style>
+        /* Inline CSS for testing */
+        .inline-css {
+            display: grid;
+            container-type: inline-size;
+        }
+    </style>
+</head>
+<body>
+    <!-- Widely available HTML features - should show green checkmark -->
+    <main>
+        <section>
+            <h1>Test Page</h1>
+            <p>This is a test page for Baseline Lens.</p>
+        </section>
+        
+        <article>
+            <header>
+                <h2>Article Header</h2>
+            </header>
+            <p>Article content goes here.</p>
+            <footer>
+                <p>Article footer</p>
+            </footer>
+        </article>
+    </main>
+
+    <!-- Newly available HTML features - should show yellow warning -->
+    <dialog id="test-dialog">
+        <p>This is a dialog element</p>
+        <button onclick="this.parentElement.close()">Close</button>
+    </dialog>
+
+    <details>
+        <summary>Click to expand</summary>
+        <p>Hidden content that can be toggled</p>
+    </details>
+
+    <picture>
+        <source media="(min-width: 800px)" srcset="large.jpg">
+        <source media="(min-width: 400px)" srcset="medium.jpg">
+        <img src="small.jpg" alt="Responsive image">
+    </picture>
+
+    <!-- Limited availability HTML features - should show red X -->
+    <search>
+        <form role="search">
+            <input type="search" placeholder="Search...">
+            <button type="submit">Search</button>
+        </form>
+    </search>
+
+    <!-- Input types with various availability -->
+    <form>
+        <!-- Widely available -->
+        <input type="text" placeholder="Text input">
+        <input type="email" placeholder="Email input">
+        <input type="password" placeholder="Password">
+        
+        <!-- Newly available -->
+        <input type="date" placeholder="Date picker">
+        <input type="color" value="#ff0000">
+        <input type="range" min="0" max="100" value="50">
+        
+        <!-- Limited availability -->
+        <input type="datetime-local" placeholder="DateTime local">
+        <input type="month" placeholder="Month picker">
+        <input type="week" placeholder="Week picker">
+    </form>
+
+    <!-- Custom elements - limited availability -->
+    <my-custom-element>
+        <p>Custom element content</p>
+    </my-custom-element>
+
+    <!-- Web Components - various availability -->
+    <template id="my-template">
+        <style>
+            :host {
+                display: block;
+                border: 1px solid #ccc;
+            }
+        </style>
+        <slot></slot>
+    </template>
+
+    <!-- Accessibility features - various availability -->
+    <div role="button" tabindex="0" aria-label="Custom button">
+        Custom Button
+    </div>
+
+    <div aria-live="polite" id="status">
+        Status updates will appear here
+    </div>
+
+    <!-- Media elements -->
+    <video controls>
+        <source src="video.mp4" type="video/mp4">
+        <track kind="subtitles" src="subtitles.vtt" srclang="en" label="English">
+        Your browser does not support the video tag.
+    </video>
+
+    <audio controls>
+        <source src="audio.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Canvas and SVG -->
+    <canvas id="test-canvas" width="200" height="100">
+        Canvas not supported
+    </canvas>
+
+    <svg width="100" height="100">
+        <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
+    </svg>
+
+    <script>
+        // Inline JavaScript for testing
+        
+        // Widely available
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+        });
+
+        // Newly available
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(() => {});
+        }
+
+        // Limited availability
+        if ('customElements' in window) {
+            class MyCustomElement extends HTMLElement {
+                connectedCallback() {
+                    this.innerHTML = '<p>Custom element initialized</p>';
+                }
+            }
+            customElements.define('my-custom-element', MyCustomElement);
+        }
+
+        // Service Worker registration - newly available
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+
+        // Web Share API - limited availability
+        if (navigator.share) {
+            navigator.share({
+                title: 'Test Page',
+                text: 'Check out this test page',
+                url: window.location.href
+            });
+        }
+    </script>
+</body>
+</html>

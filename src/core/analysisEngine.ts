@@ -37,17 +37,13 @@ export class AnalysisEngine {
                 this.analysisTimeout
             );
 
-            // Convert features to diagnostics and decorations
-            const diagnostics = this.createDiagnostics(features, document);
-            const decorations = this.createDecorations(features);
-
             const analysisTime = Date.now() - startTime;
             this.logAnalysisPerformance(document, features.length, analysisTime);
 
             return {
                 features,
-                diagnostics,
-                decorations
+                diagnostics: [], // Diagnostics are now created by UIService
+                decorations: []  // Decorations are now created by UIService
             };
 
         } catch (error) {
@@ -126,41 +122,7 @@ export class AnalysisEngine {
         return Promise.race([promise, timeoutPromise]);
     }
 
-    /**
-     * Convert detected features to VS Code diagnostics
-     */
-    private createDiagnostics(features: DetectedFeature[], document: vscode.TextDocument): vscode.Diagnostic[] {
-        return features
-            .filter(feature => feature.severity !== 'info' || this.shouldShowInfoDiagnostics())
-            .map(feature => {
-                const diagnostic = new vscode.Diagnostic(
-                    feature.range,
-                    this.createDiagnosticMessage(feature),
-                    this.mapSeverity(feature.severity)
-                );
 
-                diagnostic.source = 'Baseline Lens';
-                diagnostic.code = feature.id;
-                
-                return diagnostic;
-            });
-    }
-
-    /**
-     * Convert detected features to VS Code decorations
-     */
-    private createDecorations(features: DetectedFeature[]): vscode.DecorationOptions[] {
-        return features.map(feature => ({
-            range: feature.range,
-            hoverMessage: this.createHoverMessage(feature),
-            renderOptions: {
-                after: {
-                    contentText: this.getStatusIcon(feature.baselineStatus.status),
-                    margin: '0 0 0 0.5em'
-                }
-            }
-        }));
-    }
 
     /**
      * Handle analysis errors gracefully
@@ -248,86 +210,7 @@ export class AnalysisEngine {
         return [...new Set(extensions)]; // Remove duplicates
     }
 
-    /**
-     * Create diagnostic message for a feature
-     */
-    private createDiagnosticMessage(feature: DetectedFeature): string {
-        const statusText = this.getStatusText(feature.baselineStatus.status);
-        return `${feature.name} has ${statusText} browser support`;
-    }
 
-    /**
-     * Create hover message for a feature
-     */
-    private createHoverMessage(feature: DetectedFeature): vscode.MarkdownString {
-        const markdown = new vscode.MarkdownString();
-        markdown.isTrusted = true;
-        
-        const statusText = this.getStatusText(feature.baselineStatus.status);
-        const icon = this.getStatusIcon(feature.baselineStatus.status);
-        
-        markdown.appendMarkdown(`${icon} **${feature.name}** - ${statusText}\n\n`);
-        
-        if (feature.baselineStatus.baseline_date) {
-            markdown.appendMarkdown(`Baseline since: ${feature.baselineStatus.baseline_date}\n\n`);
-        }
-
-        return markdown;
-    }
-
-    /**
-     * Map feature severity to VS Code diagnostic severity
-     */
-    private mapSeverity(severity: 'error' | 'warning' | 'info'): vscode.DiagnosticSeverity {
-        switch (severity) {
-            case 'error':
-                return vscode.DiagnosticSeverity.Error;
-            case 'warning':
-                return vscode.DiagnosticSeverity.Warning;
-            case 'info':
-                return vscode.DiagnosticSeverity.Information;
-        }
-    }
-
-    /**
-     * Get status icon for baseline status
-     */
-    private getStatusIcon(status: string): string {
-        switch (status) {
-            case 'widely_available':
-                return '✅';
-            case 'newly_available':
-                return '⚠️';
-            case 'limited_availability':
-                return '🚫';
-            default:
-                return '❓';
-        }
-    }
-
-    /**
-     * Get human-readable status text
-     */
-    private getStatusText(status: string): string {
-        switch (status) {
-            case 'widely_available':
-                return 'widely available';
-            case 'newly_available':
-                return 'newly available';
-            case 'limited_availability':
-                return 'limited';
-            default:
-                return 'unknown';
-        }
-    }
-
-    /**
-     * Check if info diagnostics should be shown
-     */
-    private shouldShowInfoDiagnostics(): boolean {
-        // This could be configurable via extension settings
-        return false;
-    }
 
     /**
      * Log analysis performance metrics

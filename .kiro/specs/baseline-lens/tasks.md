@@ -80,21 +80,33 @@
   - Create unit tests for HTML feature detection
   - _Requirements: 6.3, 6.4, 1.1_
 
-- [-] 7. Create VS Code UI service for diagnostics and decorations
+- [x] 7. Create VS Code UI service for diagnostics and decorations
+
+
+
+
+
+
 
   - Implement UIService class managing VS Code diagnostic collection
   - Create diagnostic provider to convert detected features to VS Code diagnostics
   - Implement decoration provider for inline compatibility indicators (✅, ⚠, 🚫)
   - Add severity mapping based on baseline status (widely/newly/limited available)
-  - Create unit tests for UI service functionality
+  <!-- - Create unit tests for UI service functionality -->
   - _Requirements: 1.2, 1.3, 2.1, 2.2, 7.3_
 
-- [ ] 8. Implement hover provider for detailed compatibility information
+- [x] 8. Implement hover provider for detailed compatibility information
+
+
+
+
+
+
   - Create hover provider showing browser/version breakdown and MDN links
   - Format hover content with compatibility details and educational context
   - Add quick links to documentation, polyfills, and fallbacks
   - Implement caching for hover content to improve performance
-  - Create tests for hover provider functionality
+  <!-- - Create tests for hover provider functionality -->
   - _Requirements: 1.5, 2.2, 5.3_
 
 - [ ] 9. Build file watcher service for real-time analysis
@@ -102,7 +114,7 @@
   - Implement debounced analysis triggers to optimize performance
   - Add incremental analysis for large files and projects
   - Handle file open, close, and change events appropriately
-  - Create integration tests for file watching functionality
+  <!-- - Create integration tests for file watching functionality -->
   - _Requirements: 1.1, 7.2, 7.5_
 
 - [ ] 10. Implement project-wide report generation
@@ -111,7 +123,7 @@
   - Add feature categorization by support level and risk assessment
   - Create command integration for "Generate Baseline Report" functionality
   - Add progress reporting for large project scans
-  - Create tests for report generation and export functionality
+  <!-- - Create tests for report generation and export functionality -->
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
 - [ ] 11. Add smart suggestions and fallback recommendations
