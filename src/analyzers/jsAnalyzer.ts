@@ -43,11 +43,11 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
     }
 
     async analyze(content: string, document: vscode.TextDocument): Promise<DetectedFeature[]> {
-        if (!this.validateContentSize(content)) {
-            return [];
-        }
+        return this.safeAnalyze(async () => {
+            if (!this.validateContent(content, document)) {
+                return [];
+            }
 
-        try {
             const features: DetectedFeature[] = [];
             
             // Handle TypeScript by stripping types for basic analysis
@@ -67,9 +67,7 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
             features.push(...this.detectBuiltins(ast, content, document));
             
             return features;
-        } catch (error) {
-            return this.handleParsingError(error, document);
-        }
+        }, document, 'javascript_analysis');
     }
 
     private initializeFeatureMaps(): void {

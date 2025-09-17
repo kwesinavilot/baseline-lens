@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { AnalysisEngine } from '../core/analysisEngine';
 import { UIService } from './uiService';
+import { ConfigurationService } from './configurationService';
 
 /**
  * Configuration options for the FileWatcherService
@@ -28,17 +29,20 @@ interface PendingAnalysis {
 export class FileWatcherService implements vscode.Disposable {
     private readonly analysisEngine: AnalysisEngine;
     private readonly uiService: UIService;
+    private readonly configurationService: ConfigurationService;
     private readonly config: FileWatcherConfig;
     private readonly pendingAnalyses = new Map<string, PendingAnalysis>();
     private readonly documentChangeListener: vscode.Disposable;
     private readonly documentOpenListener: vscode.Disposable;
     private readonly documentCloseListener: vscode.Disposable;
     private readonly documentSaveListener: vscode.Disposable;
+    private readonly configChangeListener: vscode.Disposable;
     private isDisposed = false;
 
-    constructor(analysisEngine: AnalysisEngine, uiService: UIService, config?: Partial<FileWatcherConfig>) {
+    constructor(analysisEngine: AnalysisEngine, uiService: UIService, configurationService: ConfigurationService, config?: Partial<FileWatcherConfig>) {
         this.analysisEngine = analysisEngine;
         this.uiService = uiService;
+        this.configurationService = configurationService;
         
         // Default configuration
         this.config = {
@@ -64,6 +68,11 @@ export class FileWatcherService implements vscode.Disposable {
         
         this.documentSaveListener = vscode.workspace.onDidSaveTextDocument(
             this.onDocumentSave.bind(this)
+        );
+
+        // Listen for configuration changes
+        this.configChangeListener = this.configurationService.onConfigChanged(
+            this.onConfigurationChanged.bind(this)
         );
     }
 
@@ -149,10 +158,28 @@ export class FileWatcherService implements vscode.Disposable {
             return;
         }
 
+        // Check if auto-refresh on save is enabled
+        const config = this.configurationService.getConfiguration();
+        if (!config.autoRefreshOnSave) {
+            return;
+        }
+
         // Force immediate analysis on save (no debouncing)
         const uri = document.uri.toString();
         this.cancelPendingAnalysis(uri);
         await this.performAnalysis(document);
+    }
+
+    /**
+     * Handle configuration changes
+     */
+    private async onConfigurationChanged(): Promise<void> {
+        if (this.isDisposed) {
+            return;
+        }
+
+        // Refresh all documents when configuration changes
+        await this.refreshAllDocuments();
     }
 
     /**
@@ -205,8 +232,9 @@ export class FileWatcherService implements vscode.Disposable {
         }
 
         try {
-            // Check file size limits
-            if (document.getText().length > this.config.maxFileSize) {
+            // Check file size limits using configuration service
+            const config = this.configurationService.getConfiguration();
+            if (!this.configurationService.isFileSizeAcceptable(document.getText().length)) {
                 console.warn(`Skipping analysis for large file: ${document.fileName} (${document.getText().length} bytes)`);
                 return;
             }
@@ -256,13 +284,18 @@ export class FileWatcherService implements vscode.Disposable {
      * Check if a document should be analyzed
      */
     private shouldAnalyzeDocument(document: vscode.TextDocument): boolean {
-        // Skip if document is not supported
-        if (!this.config.supportedLanguages.includes(document.languageId)) {
+        // Skip if document is not supported by configuration
+        if (!this.configurationService.isFileTypeEnabled(document.languageId)) {
+            return false;
+        }
+
+        // Skip if file is excluded by patterns
+        if (this.configurationService.isFileExcluded(document.fileName)) {
             return false;
         }
 
         // Skip if document is too large
-        if (document.getText().length > this.config.maxFileSize) {
+        if (!this.configurationService.isFileSizeAcceptable(document.getText().length)) {
             return false;
         }
 
@@ -338,5 +371,6 @@ export class FileWatcherService implements vscode.Disposable {
         this.documentOpenListener.dispose();
         this.documentCloseListener.dispose();
         this.documentSaveListener.dispose();
+        this.configChangeListener.dispose();
     }
 }

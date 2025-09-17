@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/baseline-lens/baseline-lens/main/schemas/team-config.json",
+  "supportThreshold": 85,
+  "customBrowserMatrix": [
+    "chrome >= 88",
+    "firefox >= 85",
+    "safari >= 14",
+    "edge >= 88"
+  ],
+  "excludePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.min.js",
+    "**/*.min.css",
+    "**/vendor/**"
+  ],
+  "baselineStatusMapping": {
+    "widely_available": "info",
+    "newly_available": "warning",
+    "limited_availability": "error"
+  },
+  "enabledAnalyzers": {
+    "css": true,
+    "javascript": true,
+    "html": true
+  },
+  "maxFileSize": 5242880,
+  "analysisTimeout": 3000,
+  "rules": {
+    "css-grid": "warning",
+    "css-flexbox": "info",
+    "es6-modules": "warning",
+    "fetch-api": "error"
+  }
+}

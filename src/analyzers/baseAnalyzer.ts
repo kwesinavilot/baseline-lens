@@ -1,14 +1,18 @@
 import * as vscode from 'vscode';
 import { DetectedFeature, BaseAnalyzer, BaselineStatus } from '../types';
+import { ErrorHandler, ErrorContext } from '../core/errorHandler';
 
 /**
  * Abstract base class for all feature analyzers
  */
 export abstract class AbstractBaseAnalyzer implements BaseAnalyzer {
     protected supportedLanguages: string[];
+    protected errorHandler: ErrorHandler;
+    protected maxContentSize: number = 10 * 1024 * 1024; // 10MB default
 
     constructor(supportedLanguages: string[]) {
         this.supportedLanguages = supportedLanguages;
+        this.errorHandler = ErrorHandler.getInstance();
     }
 
     /**
@@ -75,11 +79,45 @@ export abstract class AbstractBaseAnalyzer implements BaseAnalyzer {
      * Handle parsing errors gracefully
      */
     protected handleParsingError(error: unknown, document: vscode.TextDocument): DetectedFeature[] {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`Parsing error in ${document.fileName}: ${errorMessage}`);
+        const context: ErrorContext = {
+            fileName: document.fileName,
+            languageId: document.languageId,
+            fileSize: document.getText().length,
+            operation: 'parsing'
+        };
+
+        this.errorHandler.handleParsingError(error, context);
         
         // Return empty array instead of throwing to allow graceful degradation
         return [];
+    }
+
+    /**
+     * Safely execute analysis with error handling
+     */
+    protected async safeAnalyze(
+        analysisFunction: () => Promise<DetectedFeature[]> | DetectedFeature[],
+        document: vscode.TextDocument,
+        operation: string = 'analysis'
+    ): Promise<DetectedFeature[]> {
+        const context: ErrorContext = {
+            fileName: document.fileName,
+            languageId: document.languageId,
+            fileSize: document.getText().length,
+            operation
+        };
+
+        try {
+            const result = await analysisFunction();
+            return result;
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('timeout')) {
+                this.errorHandler.handleTimeoutError(context);
+            } else {
+                this.errorHandler.handleParsingError(error, context);
+            }
+            return [];
+        }
     }
 
     /**
@@ -94,11 +132,41 @@ export abstract class AbstractBaseAnalyzer implements BaseAnalyzer {
     /**
      * Validate that content is not too large for analysis
      */
-    protected validateContentSize(content: string, maxSize: number = 10 * 1024 * 1024): boolean {
-        if (content.length > maxSize) {
-            console.warn(`Content too large for analysis: ${content.length} bytes`);
+    protected validateContentSize(content: string, document?: vscode.TextDocument, maxSize?: number): boolean {
+        const sizeLimit = maxSize || this.maxContentSize;
+        
+        if (content.length > sizeLimit) {
+            if (document) {
+                const context: ErrorContext = {
+                    fileName: document.fileName,
+                    languageId: document.languageId,
+                    fileSize: content.length,
+                    operation: 'size_validation'
+                };
+                this.errorHandler.handleFileSizeError(context);
+            } else {
+                console.warn(`Content too large for analysis: ${content.length} bytes`);
+            }
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Validate content before analysis
+     */
+    protected validateContent(content: string, document: vscode.TextDocument): boolean {
+        // Check size
+        if (!this.validateContentSize(content, document)) {
+            return false;
+        }
+
+        // Check if content is empty
+        if (content.trim().length === 0) {
+            return false;
+        }
+
+        // Additional validation can be added here
         return true;
     }
 

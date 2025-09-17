@@ -5,6 +5,52 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-09-17
+
+### Added
+- Comprehensive error handling and logging system
+  - Centralized ErrorHandler service with categorized error types (parsing, timeout, data loading, configuration, file size)
+  - Structured logging with configurable levels and VS Code output channel integration
+  - Error statistics tracking and performance monitoring
+  - Graceful error recovery with detailed diagnostic reporting
+
+- Intelligent fallback analysis system
+  - FallbackAnalyzer service providing regex-based feature detection when full parsing fails
+  - Language-specific fallback strategies for CSS, JavaScript, HTML, and generic patterns
+  - Maintains functionality even with malformed or unparseable files
+  - Comprehensive pattern matching for modern web features
+
+- Advanced timeout protection and concurrency management
+  - TimeoutManager service with configurable timeouts based on file size
+  - Concurrent analysis limits to prevent resource exhaustion
+  - Progress reporting integration with VS Code progress API
+  - Abort controller support for cancellation of long-running operations
+  - Automatic cleanup of expired analysis tasks
+
+- Robust data loading with fallback mechanisms
+  - Enhanced CompatibilityDataService with retry logic and exponential backoff
+  - Fallback compatibility dataset when web-features loading fails
+  - Graceful degradation ensuring extension remains functional
+  - Background retry attempts to upgrade from fallback to full dataset
+
+- Enhanced analyzer reliability
+  - All analyzers updated with safe analysis patterns and error context tracking
+  - Content validation before processing to prevent crashes
+  - Improved error messages with line/column information extraction
+  - Comprehensive test coverage for error scenarios
+
+### Changed
+- Updated all core analyzers (CSS, JavaScript, HTML) to use new error handling system
+- Enhanced AnalysisEngine with timeout protection and batch processing capabilities
+- Improved extension activation with proper error handling and configuration
+- Added error statistics command for debugging and monitoring
+
+### Fixed
+- Parsing failures no longer crash the extension
+- Large files are handled gracefully with appropriate timeouts
+- Network failures during data loading don't prevent extension functionality
+- Memory leaks from long-running analysis operations
+
 ## [0.4.0] - 2025-09-17
 
 ### Added

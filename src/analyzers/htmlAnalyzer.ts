@@ -24,11 +24,11 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
     }
 
     async analyze(content: string, document: vscode.TextDocument): Promise<DetectedFeature[]> {
-        if (!this.validateContentSize(content)) {
-            return [];
-        }
+        return this.safeAnalyze(async () => {
+            if (!this.validateContent(content, document)) {
+                return [];
+            }
 
-        try {
             const features: DetectedFeature[] = [];
             
             // Handle framework templates by extracting HTML content
@@ -48,9 +48,7 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
             features.push(...await this.analyzeInlineScripts(documentNode, content, document));
             
             return features;
-        } catch (error) {
-            return this.handleParsingError(error, document);
-        }
+        }, document, 'html_analysis');
     }
 
     private initializeFeatureMaps(): void {

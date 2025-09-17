@@ -15,11 +15,11 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
     }
 
     async analyze(content: string, document: vscode.TextDocument): Promise<DetectedFeature[]> {
-        if (!this.validateContentSize(content)) {
-            return [];
-        }
+        return this.safeAnalyze(async () => {
+            if (!this.validateContent(content, document)) {
+                return [];
+            }
 
-        try {
             const features: DetectedFeature[] = [];
             
             // Handle CSS-in-JS detection first
@@ -36,9 +36,7 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
             }
             
             return features;
-        } catch (error) {
-            return this.handleParsingError(error, document);
-        }
+        }, document, 'css_analysis');
     }
 
     private initializeFeatureMaps(): void {

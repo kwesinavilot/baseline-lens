@@ -4,12 +4,14 @@ import { CompatibilityDataService } from './services/compatibilityService';
 import { UIService } from './services/uiService';
 import { FileWatcherService } from './services/fileWatcherService';
 import { ReportGenerator } from './services/reportGenerator';
+import { ConfigurationService } from './services/configurationService';
 
 let analysisEngine: AnalysisEngine;
 let compatibilityService: CompatibilityDataService;
 let uiService: UIService;
 let fileWatcherService: FileWatcherService;
 let reportGenerator: ReportGenerator;
+let configurationService: ConfigurationService;
 
 /**
  * Generate and export a baseline compatibility report
@@ -127,16 +129,30 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Baseline Lens extension is now active');
     
     try {
-        // Initialize core services
+        // Initialize configuration service first
+        configurationService = new ConfigurationService();
+        await configurationService.initialize();
+        
+        // Initialize core services with error handling
         compatibilityService = new CompatibilityDataService();
         await compatibilityService.initialize();
         
         analysisEngine = new AnalysisEngine();
+        
+        // Update analysis engine configuration based on user settings
+        const config = configurationService.getConfiguration();
+        analysisEngine.updateConfiguration({
+            maxFileSize: config.maxFileSize,
+            analysisTimeout: config.analysisTimeout,
+            enableFallbackAnalysis: true,
+            enableErrorLogging: true
+        });
+        
         uiService = new UIService(compatibilityService);
         reportGenerator = new ReportGenerator(analysisEngine, compatibilityService);
         
         // Initialize file watcher service for real-time analysis
-        fileWatcherService = new FileWatcherService(analysisEngine, uiService);
+        fileWatcherService = new FileWatcherService(analysisEngine, uiService, configurationService);
         await fileWatcherService.initialize();
 
         // Register commands and providers
@@ -153,22 +169,125 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage('Analysis refreshed for all open documents');
         });
         
-        const toggleIndicatorsCommand = vscode.commands.registerCommand('baseline-lens.toggleInlineIndicators', () => {
-            vscode.window.showInformationMessage('Toggle Inline Indicators command executed');
+        const toggleIndicatorsCommand = vscode.commands.registerCommand('baseline-lens.toggleInlineIndicators', async () => {
+            const config = configurationService.getConfiguration();
+            const newValue = !config.showInlineIndicators;
+            await configurationService.updateConfiguration('showInlineIndicators', newValue);
+            vscode.window.showInformationMessage(`Inline indicators ${newValue ? 'enabled' : 'disabled'}`);
+        });
+
+        // Configuration management commands
+        const exportTeamConfigCommand = vscode.commands.registerCommand('baseline-lens.exportTeamConfig', async () => {
+            try {
+                const configContent = await configurationService.exportTeamConfiguration();
+                
+                const saveUri = await vscode.window.showSaveDialog({
+                    defaultUri: vscode.Uri.joinPath(
+                        vscode.workspace.workspaceFolders?.[0]?.uri || vscode.Uri.file(''),
+                        '.baseline-lens.json'
+                    ),
+                    filters: {
+                        'JSON Files': ['json']
+                    }
+                });
+
+                if (saveUri) {
+                    await vscode.workspace.fs.writeFile(saveUri, Buffer.from(configContent, 'utf8'));
+                    vscode.window.showInformationMessage('Team configuration exported successfully!');
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to export team configuration: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
+        const importTeamConfigCommand = vscode.commands.registerCommand('baseline-lens.importTeamConfig', async () => {
+            try {
+                const openUri = await vscode.window.showOpenDialog({
+                    canSelectFiles: true,
+                    canSelectFolders: false,
+                    canSelectMany: false,
+                    filters: {
+                        'JSON Files': ['json']
+                    }
+                });
+
+                if (openUri && openUri[0]) {
+                    const configContent = await vscode.workspace.fs.readFile(openUri[0]);
+                    await configurationService.importTeamConfiguration(configContent.toString());
+                    vscode.window.showInformationMessage('Team configuration imported successfully!');
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to import team configuration: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
+        const resetConfigurationCommand = vscode.commands.registerCommand('baseline-lens.resetConfiguration', async () => {
+            const result = await vscode.window.showWarningMessage(
+                'Are you sure you want to reset all Baseline Lens settings to their default values?',
+                { modal: true },
+                'Reset',
+                'Cancel'
+            );
+
+            if (result === 'Reset') {
+                try {
+                    await configurationService.resetConfiguration();
+                    vscode.window.showInformationMessage('Configuration reset to defaults successfully!');
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Failed to reset configuration: ${error instanceof Error ? error.message : String(error)}`);
+                }
+            }
+        });
+
+        const validateConfigurationCommand = vscode.commands.registerCommand('baseline-lens.validateConfiguration', async () => {
+            try {
+                const config = configurationService.getConfiguration();
+                const errors = configurationService.validateConfiguration(config);
+                
+                if (errors.length === 0) {
+                    vscode.window.showInformationMessage('Configuration is valid!');
+                } else {
+                    const errorMessage = `Configuration validation failed:\n${errors.join('\n')}`;
+                    vscode.window.showErrorMessage(errorMessage);
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to validate configuration: ${error instanceof Error ? error.message : String(error)}`);
+            }
         });
         
+
+        
+        // Add error diagnostics command
+        const showErrorStatsCommand = vscode.commands.registerCommand('baseline-lens.showErrorStats', () => {
+            const stats = analysisEngine.getAnalysisStats();
+            const message = `Analysis Stats:\n` +
+                `Active Analyses: ${stats.activeAnalyses}\n` +
+                `Error Stats: ${JSON.stringify(stats.errorStats, null, 2)}\n` +
+                `Timeout Stats: ${JSON.stringify(stats.timeoutStats, null, 2)}`;
+            
+            vscode.window.showInformationMessage(message, { modal: true });
+        });
+
         context.subscriptions.push(
+            configurationService,
             fileWatcherService,
             generateReportCommand,
             refreshAnalysisCommand,
             toggleIndicatorsCommand,
-            uiService
+            exportTeamConfigCommand,
+            importTeamConfigCommand,
+            resetConfigurationCommand,
+            validateConfigurationCommand,
+            showErrorStatsCommand,
+            uiService,
+            analysisEngine
         );
         
         console.log('Baseline Lens extension initialized successfully');
     } catch (error) {
         console.error('Failed to activate Baseline Lens extension:', error);
-        vscode.window.showErrorMessage('Failed to activate Baseline Lens extension');
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        vscode.window.showErrorMessage(`Failed to activate Baseline Lens extension: ${errorMessage}`);
     }
 }
 
@@ -176,10 +295,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
     console.log('Baseline Lens extension is deactivated');
+    if (configurationService) {
+        configurationService.dispose();
+    }
     if (fileWatcherService) {
         fileWatcherService.dispose();
     }
     if (uiService) {
         uiService.dispose();
+    }
+    if (analysisEngine) {
+        analysisEngine.dispose();
     }
 }

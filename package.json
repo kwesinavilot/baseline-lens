@@ -59,6 +59,26 @@
       {
         "command": "baseline-lens.openDocumentation",
         "title": "Open Documentation"
+      },
+      {
+        "command": "baseline-lens.exportTeamConfig",
+        "title": "Export Team Configuration",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.importTeamConfig",
+        "title": "Import Team Configuration",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.resetConfiguration",
+        "title": "Reset Configuration to Defaults",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.validateConfiguration",
+        "title": "Validate Configuration",
+        "category": "Baseline Lens"
       }
     ],
     "menus": {
@@ -71,6 +91,18 @@
         },
         {
           "command": "baseline-lens.toggleInlineIndicators"
+        },
+        {
+          "command": "baseline-lens.exportTeamConfig"
+        },
+        {
+          "command": "baseline-lens.importTeamConfig"
+        },
+        {
+          "command": "baseline-lens.resetConfiguration"
+        },
+        {
+          "command": "baseline-lens.validateConfiguration"
         }
       ]
     },
@@ -80,7 +112,10 @@
         "baseline-lens.enabledFileTypes": {
           "type": "array",
           "default": ["css", "scss", "less", "javascript", "typescript", "html", "vue", "svelte"],
-          "description": "File types to analyze for web feature compatibility"
+          "description": "File types to analyze for web feature compatibility",
+          "items": {
+            "type": "string"
+          }
         },
         "baseline-lens.supportThreshold": {
           "type": "number",
@@ -103,7 +138,88 @@
         "baseline-lens.excludePatterns": {
           "type": "array",
           "default": ["**/node_modules/**", "**/dist/**", "**/build/**"],
-          "description": "File patterns to exclude from analysis"
+          "description": "File patterns to exclude from analysis",
+          "items": {
+            "type": "string"
+          }
+        },
+        "baseline-lens.customBrowserMatrix": {
+          "type": "array",
+          "default": [],
+          "description": "Custom browser support matrix. Leave empty to use default Baseline data. Format: ['chrome >= 90', 'firefox >= 88', 'safari >= 14']",
+          "items": {
+            "type": "string"
+          }
+        },
+        "baseline-lens.baselineStatusMapping": {
+          "type": "object",
+          "default": {
+            "widely_available": "info",
+            "newly_available": "warning",
+            "limited_availability": "error"
+          },
+          "description": "Map baseline status to diagnostic severity levels",
+          "properties": {
+            "widely_available": {
+              "type": "string",
+              "enum": ["error", "warning", "info", "none"]
+            },
+            "newly_available": {
+              "type": "string",
+              "enum": ["error", "warning", "info", "none"]
+            },
+            "limited_availability": {
+              "type": "string",
+              "enum": ["error", "warning", "info", "none"]
+            }
+          }
+        },
+        "baseline-lens.enabledAnalyzers": {
+          "type": "object",
+          "default": {
+            "css": true,
+            "javascript": true,
+            "html": true
+          },
+          "description": "Enable or disable specific analyzers",
+          "properties": {
+            "css": {
+              "type": "boolean"
+            },
+            "javascript": {
+              "type": "boolean"
+            },
+            "html": {
+              "type": "boolean"
+            }
+          }
+        },
+        "baseline-lens.maxFileSize": {
+          "type": "number",
+          "default": 10485760,
+          "minimum": 1024,
+          "description": "Maximum file size in bytes to analyze (default: 10MB)"
+        },
+        "baseline-lens.analysisTimeout": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 1000,
+          "description": "Analysis timeout in milliseconds per file"
+        },
+        "baseline-lens.enableTeamConfig": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable team-level configuration from .baseline-lens.json files"
+        },
+        "baseline-lens.showEducationalHints": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show educational hints for newly available features"
+        },
+        "baseline-lens.autoRefreshOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh analysis when files are saved"
         }
       }
     }

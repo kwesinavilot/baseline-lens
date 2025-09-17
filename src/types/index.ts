@@ -36,8 +36,37 @@ export interface ExtensionConfig {
     supportThreshold: number;
     showInlineIndicators: boolean;
     diagnosticSeverity: 'error' | 'warning' | 'info';
-    customBrowserMatrix?: string[];
+    customBrowserMatrix: string[];
     excludePatterns: string[];
+    baselineStatusMapping: {
+        widely_available: 'error' | 'warning' | 'info' | 'none';
+        newly_available: 'error' | 'warning' | 'info' | 'none';
+        limited_availability: 'error' | 'warning' | 'info' | 'none';
+    };
+    enabledAnalyzers: {
+        css: boolean;
+        javascript: boolean;
+        html: boolean;
+    };
+    maxFileSize: number;
+    analysisTimeout: number;
+    enableTeamConfig: boolean;
+    showEducationalHints: boolean;
+    autoRefreshOnSave: boolean;
+}
+
+export interface TeamConfig {
+    extends?: string;
+    supportThreshold?: number;
+    customBrowserMatrix?: string[];
+    excludePatterns?: string[];
+    baselineStatusMapping?: Partial<ExtensionConfig['baselineStatusMapping']>;
+    enabledAnalyzers?: Partial<ExtensionConfig['enabledAnalyzers']>;
+    maxFileSize?: number;
+    analysisTimeout?: number;
+    rules?: {
+        [featureId: string]: 'error' | 'warning' | 'info' | 'off';
+    };
 }
 
 export interface WebFeature {
