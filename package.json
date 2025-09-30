@@ -1,13 +1,32 @@
 {
   "name": "baseline-lens",
   "displayName": "Baseline Lens",
-  "description": "Real-time web feature compatibility checking with Baseline data",
-  "version": "0.0.1",
+  "description": "Real-time web feature compatibility checking with Baseline data directly in VS Code",
+  "version": "0.6.0",
+  "publisher": "baseline-lens",
+  "author": {
+    "name": "Andrews Kwesi Ankomahene"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/kwesinavilot/baseline-lens#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kwesinavilot/baseline-lens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kwesinavilot/baseline-lens/issues"
+  },
+
+  "galleryBanner": {
+    "color": "#007ACC",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": [
     "Linters",
+    "Programming Languages",
     "Other"
   ],
   "keywords": [
@@ -16,7 +35,16 @@
     "web-features",
     "css",
     "javascript",
-    "html"
+    "html",
+    "browser-support",
+    "caniuse",
+    "mdn",
+    "web-standards",
+    "linter",
+    "diagnostics",
+    "browser",
+    "features",
+    "web"
   ],
   "activationEvents": [
     "onLanguage:css",
@@ -233,7 +261,14 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "vsce:package": "vsce package",
+    "vsce:publish": "vsce publish",
+    "vsce:publish-minor": "vsce publish minor",
+    "vsce:publish-major": "vsce publish major",
+    "prepare-release": "node scripts/prepare-release.js",
+    "clean": "rimraf out *.vsix",
+    "validate": "npm run lint && npm test && npm run compile"
   },
   "devDependencies": {
     "@types/vscode": "^1.74.0",
@@ -255,6 +290,11 @@
     "web-features": "^0.8.0",
     "postcss": "^8.4.20",
     "acorn": "^8.8.1",
-    "parse5": "^7.1.2"
+    "parse5": "^7.1.2",
+    "commander": "^10.0.1",
+    "glob": "^8.0.3"
+  },
+  "bin": {
+    "baseline-lens": "./out/cli/index.js"
   }
 }

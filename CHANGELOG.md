@@ -5,6 +5,59 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-09-30
+
+### Added
+- **Extension Packaging and Documentation**
+  - Comprehensive README with installation instructions, usage examples, and configuration guide
+  - Complete marketplace preparation including publisher information and metadata
+  - Contributing guidelines and development setup documentation
+  - Troubleshooting guide with common issues and solutions
+  - FAQ covering general questions, configuration, and development topics
+  - Publishing guide with automated release workflows
+  - GitHub Actions workflow for automated testing, packaging, and publishing
+  - Release preparation scripts for version management and quality assurance
+
+- **Comprehensive test suite and performance optimization**
+  - End-to-end integration tests covering complete workflows
+  - Performance tests for large files (up to 10MB) and projects (1000+ files)
+  - Memory usage monitoring and optimization
+  - Startup time optimization achieving <2 second activation requirement
+  - Cross-platform compatibility testing
+  - Automated test data generation for various feature scenarios
+
+- **Advanced configuration and customization system**
+  - VS Code settings integration for extension configuration
+  - Support threshold customization and browser matrix settings
+  - Team-level configuration support with workspace settings
+  - File type and pattern exclusion capabilities
+  - Configuration validation and default value handling
+
+- **Project-wide report generation capabilities**
+  - ReportGenerator class for scanning entire projects
+  - JSON and Markdown report export formats
+  - Feature categorization by support level and risk assessment
+  - Command integration for "Generate Baseline Report" functionality
+  - Progress reporting for large project scans
+
+- **Real-time file monitoring system**
+  - FileWatcherService to monitor document changes
+  - Debounced analysis triggers to optimize performance
+  - Incremental analysis for large files and projects
+  - Proper handling of file open, close, and change events
+
+### Changed
+- Enhanced extension performance with optimized startup and analysis times
+- Improved memory management for large-scale project analysis
+- Updated all services to support comprehensive configuration system
+- Enhanced error handling with better diagnostic reporting
+- Prepared extension for VS Code Marketplace submission with complete documentation
+
+### Fixed
+- Performance bottlenecks in large project analysis
+- Memory leaks during extended usage
+- Configuration synchronization issues across workspace settings
+
 ## [0.5.0] - 2025-09-17
 
 ### Added

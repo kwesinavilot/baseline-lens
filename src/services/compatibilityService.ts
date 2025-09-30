@@ -398,4 +398,29 @@ export class CompatibilityDataService {
     isReady(): boolean {
         return this.isInitialized;
     }
+
+    /**
+     * Get all available web features
+     */
+    async getAllFeatures(): Promise<WebFeatureDetails[]> {
+        if (!this.isInitialized) {
+            await this.initialize();
+        }
+
+        const features: WebFeatureDetails[] = [];
+        
+        for (const [id, webFeature] of this.webFeaturesData) {
+            if (webFeature.baseline) {
+                features.push({
+                    name: webFeature.name,
+                    description: webFeature.description || webFeature.name,
+                    mdn_url: webFeature.mdn_url,
+                    spec_url: webFeature.spec_url,
+                    baseline: webFeature.baseline
+                });
+            }
+        }
+
+        return features.sort((a, b) => a.name.localeCompare(b.name));
+    }
 }

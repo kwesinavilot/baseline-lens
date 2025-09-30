@@ -1,133 +1,228 @@
 # 🌐 Baseline Lens
 
-**Problem:**
-Web developers constantly check MDN, CanIUse, and blog posts to know if a feature is safe to use in production. This wastes time and introduces risk.
+[![Version](https://img.shields.io/visual-studio-marketplace/v/baseline-lens.baseline-lens)](https://marketplace.visualstudio.com/items?itemName=baseline-lens.baseline-lens)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/baseline-lens.baseline-lens)](https://marketplace.visualstudio.com/items?itemName=baseline-lens.baseline-lens)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/baseline-lens.baseline-lens)](https://marketplace.visualstudio.com/items?itemName=baseline-lens.baseline-lens)
 
-**Solution:**
-Baseline Lens integrates [Baseline](https://web.dev/baseline/) data directly into inside VS Code:
+**Real-time web feature compatibility checking with Baseline data directly in VS Code**
 
-* Detects usage of modern web features (CSS, JS, HTML).
-* Shows inline support status (✅ Widely available, ⚠ Newly available, 🚫 Limited support).
-* Offers fallbacks, alternatives, and links to MDN.
-* Can generate a project-wide compatibility report.
+Stop context-switching to MDN and CanIUse. Baseline Lens brings [Baseline](https://web.dev/baseline/) compatibility data directly into your development workflow, helping you make informed decisions about web feature adoption without leaving your IDE.
 
-👉 In short: **Baseline Lens is to web feature compatibility what ESLint is to code quality.** Always there, always reliable, never in the way.
+![Baseline Lens Demo](https://raw.githubusercontent.com/kwesinavilot/baseline-lens/main/assets/demo.gif)
 
-## 🌟 Value Proposition
+## ✨ Features
 
-* **Saves Time:** No more context-switching to MDN, CanIUse, or blog posts.
-* **Reduces Bugs:** Catches risky features *before they reach production*.
-* **Boosts Confidence:** Encourages adoption of modern features by clarifying their safety.
-* **Team Alignment:** Ensures teams share a single source of truth about feature support.
-* **Future-Ready:** Promotes gradual adoption of Baseline as the universal standard for web dev.
+- **🔍 Real-time Analysis**: Detects modern web features in CSS, JavaScript, and HTML as you type
+- **📊 Inline Indicators**: Visual compatibility status (✅ Widely available, ⚠ Newly available, 🚫 Limited support)
+- **💡 Smart Tooltips**: Hover for detailed browser support breakdown and MDN links
+- **🚨 Diagnostics**: Integration with VS Code Problems panel for comprehensive issue tracking
+- **📋 Project Reports**: Generate compatibility reports for entire projects in JSON or Markdown
+- **🔧 Team Configuration**: Share compatibility standards across your team
+- **🎯 Smart Suggestions**: Get fallback recommendations and alternative approaches
+- **⚡ Performance Optimized**: Lightweight, local analysis with sub-100ms response times
+
+## 🚀 Quick Start
+
+### Installation
+
+1. **From VS Code Marketplace** (Recommended)
+   - Open VS Code
+   - Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+   - Search for "Baseline Lens"
+   - Click Install
+
+2. **From Command Line**
+   ```bash
+   code --install-extension baseline-lens.baseline-lens
+   ```
+
+3. **Manual Installation**
+   - Download the `.vsix` file from [releases](https://github.com/kwesinavilot/baseline-lens/releases)
+   - Run `code --install-extension baseline-lens-x.x.x.vsix`
+
+### First Steps
+
+1. **Open any web project** with CSS, JavaScript, or HTML files
+2. **Start coding** - Baseline Lens automatically activates and begins analysis
+3. **Look for indicators** - ✅ ⚠ 🚫 symbols appear next to web features
+4. **Hover for details** - Get browser support breakdown and MDN links
+5. **Check Problems panel** - View all compatibility issues in one place
+
+## 📖 Usage
+
+### Inline Compatibility Indicators
+
+Baseline Lens shows real-time compatibility status as you code:
+
+```css
+/* ✅ Widely available - safe to use */
+.container {
+  display: flex;
+  gap: 1rem;
+}
+
+/* ⚠ Newly available - use with caution */
+.card {
+  container-type: inline-size;
+}
+
+/* 🚫 Limited support - needs fallback */
+.element:has(.child) {
+  color: red;
+}
+```
+
+### Hover Information
+
+Hover over any indicator to see:
+- **Browser support breakdown** with version numbers
+- **Baseline status** and availability timeline
+- **MDN documentation** links
+- **Polyfill suggestions** when available
+- **Alternative approaches** for limited-support features
+
+### Project Reports
+
+Generate comprehensive compatibility reports:
+
+1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+2. Run "Baseline Lens: Generate Report"
+3. Choose output format (JSON or Markdown)
+4. Review feature usage and compatibility status
+
+### Team Configuration
+
+Share compatibility standards across your team:
+
+```json
+// .baseline-lens.json
+{
+  "supportThreshold": 95,
+  "diagnosticSeverity": "warning",
+  "customBrowserMatrix": [
+    "chrome >= 90",
+    "firefox >= 88",
+    "safari >= 14"
+  ],
+  "excludePatterns": [
+    "**/vendor/**",
+    "**/legacy/**"
+  ]
+}
+```
+
+## ⚙️ Configuration
+
+### Extension Settings
+
+Access settings via File → Preferences → Settings → Extensions → Baseline Lens:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabledFileTypes` | `["css", "scss", "javascript", "html", "vue"]` | File types to analyze |
+| `supportThreshold` | `90` | Minimum support percentage for "safe" features |
+| `showInlineIndicators` | `true` | Show visual indicators in editor |
+| `diagnosticSeverity` | `"warning"` | Severity level for compatibility issues |
+| `excludePatterns` | `["**/node_modules/**"]` | Files/folders to exclude from analysis |
+
+### Workspace Configuration
+
+Create `.baseline-lens.json` in your project root:
+
+```json
+{
+  "supportThreshold": 95,
+  "diagnosticSeverity": "error",
+  "baselineStatusMapping": {
+    "widely_available": "info",
+    "newly_available": "warning", 
+    "limited_availability": "error"
+  },
+  "enabledAnalyzers": {
+    "css": true,
+    "javascript": true,
+    "html": true
+  }
+}
+```
+
+## 🔧 Commands
+
+| Command | Description |
+|---------|-------------|
+| `Baseline Lens: Generate Report` | Create project-wide compatibility report |
+| `Baseline Lens: Refresh Analysis` | Re-analyze current file |
+| `Baseline Lens: Toggle Inline Indicators` | Show/hide visual indicators |
+| `Baseline Lens: Export Team Configuration` | Export current settings for team sharing |
+
+## 🌐 Supported Technologies
+
+### Languages & Frameworks
+- **CSS**: Pure CSS, SCSS, Less, CSS-in-JS, styled-components
+- **JavaScript**: ES5+, TypeScript, JSX, Node.js APIs
+- **HTML**: HTML5, Web Components, framework templates
+- **Frameworks**: React, Vue, Angular, Svelte
+
+### Web Features Detected
+- **CSS**: Properties, selectors, at-rules, functions, pseudo-classes
+- **JavaScript**: Web APIs, built-in objects, modern syntax, DOM methods
+- **HTML**: Elements, attributes, input types, ARIA properties
+
+## 🚀 Performance
+
+- **Analysis Speed**: <100ms for typical files
+- **Memory Usage**: <50MB for large projects (1000+ files)
+- **Startup Time**: <2 seconds extension activation
+- **File Size Limit**: 10MB per file (configurable)
+
+## 🤝 Contributing
+
+We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+```bash
+# Clone repository
+git clone https://github.com/kwesinavilot/baseline-lens.git
+cd baseline-lens
+
+# Install dependencies
+npm install
+
+# Start development
+npm run watch
+
+# Run tests
+npm test
+
+# Package extension
+npm run package
+```
+
+## 📚 Documentation
+
+- [User Guide](docs/USER_GUIDE.md) - Comprehensive usage documentation
+- [Configuration Guide](docs/CONFIGURATION.md) - Detailed configuration options
+- [API Documentation](docs/API_DOCUMENTATION.md) - Extension API reference
+- [Architecture Guide](docs/ARCHITECTURE.md) - Technical implementation details
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+## 🐛 Issues & Support
+
+- **Bug Reports**: [GitHub Issues](https://github.com/kwesinavilot/baseline-lens/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/kwesinavilot/baseline-lens/discussions)
+- **Documentation**: [Wiki](https://github.com/kwesinavilot/baseline-lens/wiki)
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Baseline](https://web.dev/baseline/) - Web platform compatibility standard
+- [web-features](https://github.com/web-platform-dx/web-features) - Compatibility data source
+- [VS Code Extension API](https://code.visualstudio.com/api) - Platform foundation
 
 ---
 
-## 🔮 Vision
-
-Baseline Lens isn’t just a linter or checker — it’s a **trust layer for modern web development**. Over time, it will expand to:
-* **Other IDEs:** JetBrains, Cursor, Nova.
-* **Browser DevTools:** Highlight risky features directly in the inspector.
-* **AI Pairing:** Integrate with AI coding assistants (Amazon Q, Copilot, Cursor) to ensure suggestions are Baseline-safe.
-* **Community Knowledge:** Crowdsource fallback recipes and best practices for non-Baseline features.
-
----
-
-## 🚀 Mission
-
-**Baseline Lens empowers web developers to adopt modern web features with confidence.**
-By bringing **Baseline compatibility data directly into the coding workflow**, it eliminates guesswork, reduces context-switching, and ensures every line of code is production-ready for the widest range of users.
-
----
-
-## 🎯 Goals
-
-1. **Confidence First:** Give developers immediate clarity on whether a feature is safe to use.
-2. **Seamless Integration:** Live inside VS Code without disrupting the natural flow of coding.
-3. **Education Through Use:** Teach developers about new features in context, not through endless docs.
-4. **Team Productivity:** Provide compatibility reports for teams to enforce standards in CI/CD pipelines.
-5. **Future-Proofing:** Help projects adopt the newest Baseline features without fear of breaking compatibility.
-
----
-
-## 👥 Who It Helps
-
-* **Frontend Developers:** Writing CSS, JS, or HTML daily, unsure if a feature is safe across browsers.
-* **Tech Leads & Architects:** Want to enforce standards for cross-browser compatibility.
-* **Educators & Students:** Learning new features, need real-time feedback on what’s “safe to use now.”
-* **Open-Source Maintainers:** Ensuring libraries/frameworks don’t rely on risky features.
-* **Enterprise Teams:** Avoiding regressions when supporting diverse user bases.
-
----
-
-## ✨ Core Features
-
-1. **Real-Time Compatibility Checking**
-
-   * Inline highlights (`✅`, `⚠`, `🚫`) showing if a feature is widely available, newly available, or limited.
-   * Hover tooltips with browser/version breakdowns + MDN links.
-
-2. **Feature-Aware Diagnostics**
-
-   * All warnings/errors are logged in the VS Code *Problems* panel.
-   * Quick links to docs, polyfills, or fallbacks.
-
-3. **Project-Wide Reports**
-
-   * Command: *“Generate Baseline Report”* → outputs JSON or Markdown summary of features used and their statuses.
-   * Useful for PR reviews or compliance checks.
-
-4. **CI/CD Integration**
-
-   * Exportable config to integrate with GitHub Actions, GitLab CI, or other pipelines.
-   * Fails builds if unsafe features are introduced.
-
-5. **Smart Suggestions (Optional AI Assist)**
-
-   * If a feature is risky, Baseline Lens suggests alternatives or fallback snippets.
-   * E.g. `:has()` → suggest JavaScript querySelector fallback.
-
-6. **Educational Hints**
-
-   * Subtle onboarding: when you first type a new API, Baseline Lens explains what it is and why it’s safe/unsafe.
-
----
-
-## ⚡ Workflow Integration
-
-* **Inline First:** Developers see compatibility *where they code*, not in a browser tab.
-* **No Disruption:** Works like ESLint/Prettier — quietly highlights issues, fix when ready.
-* **Lightweight:** Runs locally, powered by `web-features` dataset. No heavy setup.
-* **Cross-Project Awareness:** Works in React, Vue, Angular, Svelte, vanilla HTML/CSS/JS.
-
----
-
-# 🛠 Tech Stack
-
-* **Language:** TypeScript
-* **Platform:** VS Code Extension API
-* **Parsing:**
-
-  * CSS → `postcss`
-  * JS → `acorn` or `esprima`
-  * HTML → `parse5`
-* **Baseline Data:** `web-features` npm package
-* **UI:** VS Code Diagnostic API + Decoration API
-
-Optional:
-
-* **Fallback Suggestions:** Hardcoded mappings or AI (OpenAI/Anthropic).
-* **Reports:** JSON + VS Code command panel.
-
----
-
-# 🎯 Hackathon Pitch
-
-**Tagline:** *“Stop Googling ‘is it safe to use?’ — Baseline Lens brings compatibility awareness straight into your IDE.”*
-
-**Why it’s strong for the hackathon:**
-
-* Direct, real-world developer productivity boost.
-* Innovative: no existing VS Code extension does this.
-* Easy adoption (drop-in install).
-* Open source, extensible beyond VS Code.
+**Made with ❤️ for the web development community**

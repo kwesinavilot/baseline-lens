@@ -1,6 +1,11 @@
+# Development files
 .vscode/**
 .vscode-test/**
 src/**
+test/**
+node_modules/**
+
+# Build and config files
 .gitignore
 .yarnrc
 webpack.config.js
@@ -9,3 +14,32 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+# Documentation (keep essential docs)
+docs/DEVELOPMENT_GUIDE.md
+docs/ARCHITECTURE.md
+docs/PROCESS_DIAGRAMS.md
+
+# Git and CI
+.git/**
+.github/**
+.gitattributes
+
+# Package files
+*.vsix
+package-lock.json
+yarn.lock
+
+# Logs and temp files
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/**
+*.swp
+*.swo
+
+# Test files
+coverage/**
+.nyc_output/**
