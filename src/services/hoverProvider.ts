@@ -59,12 +59,12 @@ export class HoverProvider implements vscode.HoverProvider {
 
         // Generate hover content
         const hoverContent = this.createHoverContent(feature);
-        
+
         // Cache the result
         this.cacheHover(cacheKey, hoverContent);
 
         // Emit command for walkthrough tracking
-        vscode.commands.executeCommand('baseline-lens.showHover').catch(() => {
+        Promise.resolve(vscode.commands.executeCommand('baseline-lens.showHover')).catch(() => {
             // Ignore errors - this is just for walkthrough tracking
         });
 
@@ -94,7 +94,7 @@ export class HoverProvider implements vscode.HoverProvider {
         // Header with feature name and status icon
         const statusIcon = this.getStatusIcon(feature.baselineStatus.status);
         const statusColor = this.getStatusColor(feature.baselineStatus.status);
-        
+
         markdown.appendMarkdown(`# ${statusIcon} ${feature.name}\n\n`);
 
         // Status badge
@@ -135,22 +135,22 @@ export class HoverProvider implements vscode.HoverProvider {
      */
     private appendBaselineInfo(markdown: vscode.MarkdownString, baseline: BaselineStatus): void {
         markdown.appendMarkdown(`## 📊 Baseline Status\n\n`);
-        
+
         const statusDescription = this.getDetailedStatusDescription(baseline.status);
         markdown.appendMarkdown(`${statusDescription}\n\n`);
 
         if (baseline.baseline_date) {
             markdown.appendMarkdown(`**Baseline Date:** ${baseline.baseline_date}\n`);
         }
-        
+
         if (baseline.low_date) {
             markdown.appendMarkdown(`**Low Support Date:** ${baseline.low_date}\n`);
         }
-        
+
         if (baseline.high_date) {
             markdown.appendMarkdown(`**High Support Date:** ${baseline.high_date}\n`);
         }
-        
+
         markdown.appendMarkdown(`\n`);
     }
 
@@ -182,7 +182,7 @@ export class HoverProvider implements vscode.HoverProvider {
             const version = this.formatVersion(support.version_added);
             const notes = support.notes || '';
             const supportIcon = this.getSupportIcon(support.version_added);
-            
+
             markdown.appendMarkdown(`| ${supportIcon} ${browserName} | ${version} | ${notes} |\n`);
         }
 
@@ -255,11 +255,11 @@ export class HoverProvider implements vscode.HoverProvider {
         }
 
         markdown.appendMarkdown(`## 💭 Recommendations\n\n`);
-        
+
         for (const recommendation of recommendations) {
             markdown.appendMarkdown(`• ${recommendation}\n`);
         }
-        
+
         markdown.appendMarkdown(`\n`);
     }
 
@@ -335,7 +335,7 @@ export class HoverProvider implements vscode.HoverProvider {
             'safari_ios': 'Safari iOS',
             'samsung_android': 'Samsung Internet'
         };
-        
+
         return browserNames[browser.toLowerCase()] || browser;
     }
 

@@ -5,6 +5,32 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2025-09-30
+
+### Changed
+- **Enhanced Testing Documentation**
+  - Converted usability testing guide to comprehensive User Acceptance Testing (UAT) specification
+  - Added 10 detailed UAT scenarios with clear business requirements and acceptance criteria
+  - Implemented formal UAT execution framework with priority levels (Critical/High/Medium)
+  - Added business value validation metrics and stakeholder approval process
+  - Created structured test session templates and results documentation
+  - Enhanced test scenarios with specific user stories and expected outcomes
+  - Added comprehensive completion criteria for production release validation
+
+### Improved
+- UAT scenarios now include detailed test steps, sample code, and binary pass/fail criteria
+- Professional UAT documentation suitable for QA teams and business stakeholders
+- Clear priority classification for release decision-making
+- Formal approval workflow with tester and stakeholder sign-off requirements
+
+## [0.7.1] - 2025-09-30
+
+### Fixed
+- **TypeScript Compatibility Issue**
+  - Fixed `Property 'catch' does not exist on type 'Thenable<unknown>'` error in hover provider
+  - Wrapped `vscode.commands.executeCommand` with `Promise.resolve()` to enable proper error handling
+  - Improved walkthrough tracking reliability for hover events
+
 ## [0.7.0] - 2025-09-30
 
 ### Added

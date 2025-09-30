@@ -4,6 +4,7 @@
 src/**
 test/**
 node_modules/**
+.kiro/**
 
 # Build and config files
 .gitignore
