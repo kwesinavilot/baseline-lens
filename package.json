@@ -2,12 +2,15 @@
   "name": "baseline-lens",
   "displayName": "Baseline Lens",
   "description": "Real-time web feature compatibility checking with Baseline data directly in VS Code",
-  "version": "0.6.0",
-  "publisher": "baseline-lens",
+  "version": "0.7.0",
+  "publisher": "kwesinavilot",
   "author": {
-    "name": "Andrews Kwesi Ankomahene"
+    "name": "Andrews Kwesi Ankomahene",
+    "url": "https://github.com/kwesinavilot"
   },
+  "icon": "assets/bg-logo.png",
   "license": "MIT",
+  "pricing": "Free",
   "homepage": "https://github.com/kwesinavilot/baseline-lens#readme",
   "repository": {
     "type": "git",
@@ -16,7 +19,6 @@
   "bugs": {
     "url": "https://github.com/kwesinavilot/baseline-lens/issues"
   },
-
   "galleryBanner": {
     "color": "#007ACC",
     "theme": "dark"
@@ -27,6 +29,9 @@
   "categories": [
     "Linters",
     "Programming Languages",
+    "AI",
+    "Debuggers",
+    "Testing",
     "Other"
   ],
   "keywords": [
@@ -107,6 +112,16 @@
         "command": "baseline-lens.validateConfiguration",
         "title": "Validate Configuration",
         "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.showWalkthrough",
+        "title": "Show Getting Started Guide",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.openCommunity",
+        "title": "Join Community",
+        "category": "Baseline Lens"
       }
     ],
     "menus": {
@@ -131,6 +146,12 @@
         },
         {
           "command": "baseline-lens.validateConfiguration"
+        },
+        {
+          "command": "baseline-lens.showWalkthrough"
+        },
+        {
+          "command": "baseline-lens.openCommunity"
         }
       ]
     },
@@ -139,7 +160,16 @@
       "properties": {
         "baseline-lens.enabledFileTypes": {
           "type": "array",
-          "default": ["css", "scss", "less", "javascript", "typescript", "html", "vue", "svelte"],
+          "default": [
+            "css",
+            "scss",
+            "less",
+            "javascript",
+            "typescript",
+            "html",
+            "vue",
+            "svelte"
+          ],
           "description": "File types to analyze for web feature compatibility",
           "items": {
             "type": "string"
@@ -159,13 +189,21 @@
         },
         "baseline-lens.diagnosticSeverity": {
           "type": "string",
-          "enum": ["error", "warning", "info"],
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
           "default": "warning",
           "description": "Severity level for compatibility diagnostics"
         },
         "baseline-lens.excludePatterns": {
           "type": "array",
-          "default": ["**/node_modules/**", "**/dist/**", "**/build/**"],
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**"
+          ],
           "description": "File patterns to exclude from analysis",
           "items": {
             "type": "string"
@@ -190,15 +228,30 @@
           "properties": {
             "widely_available": {
               "type": "string",
-              "enum": ["error", "warning", "info", "none"]
+              "enum": [
+                "error",
+                "warning",
+                "info",
+                "none"
+              ]
             },
             "newly_available": {
               "type": "string",
-              "enum": ["error", "warning", "info", "none"]
+              "enum": [
+                "error",
+                "warning",
+                "info",
+                "none"
+              ]
             },
             "limited_availability": {
               "type": "string",
-              "enum": ["error", "warning", "info", "none"]
+              "enum": [
+                "error",
+                "warning",
+                "info",
+                "none"
+              ]
             }
           }
         },
@@ -250,7 +303,85 @@
           "description": "Automatically refresh analysis when files are saved"
         }
       }
-    }
+    },
+    "walkthroughs": [
+      {
+        "id": "baseline-lens.getting-started",
+        "title": "Get Started with Baseline Lens",
+        "description": "Learn how to use Baseline Lens to check web feature compatibility and make your code production-ready across all browsers.",
+        "steps": [
+          {
+            "id": "baseline-lens.step.open-file",
+            "title": "Open a web file to get started",
+            "description": "Open any CSS, JavaScript, or HTML file to see Baseline Lens analyze web features in real-time. The extension automatically detects modern web features and shows their browser compatibility status.\n\n[Open a File](command:workbench.action.files.openFile)\n\nTip: Try opening a CSS file with modern features like `:has()` selector or `container-queries` to see the compatibility indicators in action!",
+            "media": {
+              "markdown": "media/walkthrough/step1.md"
+            },
+            "completionEvents": [
+              "onLanguage:css",
+              "onLanguage:javascript",
+              "onLanguage:html",
+              "onLanguage:typescript",
+              "onLanguage:javascriptreact",
+              "onLanguage:typescriptreact"
+            ]
+          },
+          {
+            "id": "baseline-lens.step.view-indicators",
+            "title": "Discover compatibility indicators",
+            "description": "Look for inline indicators in your code:\n\n- ✅ **Widely available** - Safe to use in production\n- ⚠️ **Newly available** - Recently became baseline, use with caution\n- 🚫 **Limited support** - Not yet baseline, consider alternatives\n\nHover over any indicator to see detailed browser support information and links to MDN documentation.",
+            "media": {
+              "markdown": "media/walkthrough/step2.md"
+            },
+            "completionEvents": [
+              "onCommand:baseline-lens.showHover"
+            ]
+          },
+          {
+            "id": "baseline-lens.step.check-problems",
+            "title": "Review compatibility issues",
+            "description": "Check the Problems panel to see all compatibility issues in your project. Baseline Lens reports features that might cause problems for your users.\n\n[Open Problems Panel](command:workbench.actions.view.problems)\n\nEach issue includes:\n- Feature name and location\n- Compatibility status\n- Quick links to documentation and alternatives",
+            "media": {
+              "markdown": "media/walkthrough/step3.md"
+            },
+            "completionEvents": [
+              "onCommand:workbench.actions.view.problems"
+            ]
+          },
+          {
+            "id": "baseline-lens.step.generate-report",
+            "title": "Generate a project compatibility report",
+            "description": "Get a comprehensive overview of all web features used in your project and their compatibility status.\n\n[Generate Baseline Report](command:baseline-lens.generateReport)\n\nThe report shows:\n- Summary of features by compatibility level\n- Detailed breakdown by file\n- Recommendations for improving compatibility\n- Export options for team sharing",
+            "media": {
+              "markdown": "media/walkthrough/step4.md"
+            },
+            "completionEvents": [
+              "onCommand:baseline-lens.generateReport"
+            ]
+          },
+          {
+            "id": "baseline-lens.step.configure-settings",
+            "title": "Customize your experience",
+            "description": "Configure Baseline Lens to match your project's browser support requirements.\n\n[Open Settings](command:workbench.action.openSettings?%5B%22baseline-lens%22%5D)\n\nKey settings:\n- **Support threshold**: Minimum browser support percentage\n- **Browser matrix**: Target specific browsers and versions  \n- **Diagnostic severity**: Control warning levels\n- **File exclusions**: Skip certain files or patterns",
+            "media": {
+              "markdown": "media/walkthrough/step5.md"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openSettings"
+            ]
+          },
+          {
+            "id": "baseline-lens.step.learn-more",
+            "title": "Explore advanced features",
+            "description": "You're all set! Here are some advanced features to explore:\n\n**Smart Suggestions**: Get alternative approaches for risky features\n**Code Actions**: Quick fixes and polyfill suggestions\n**CI/CD Integration**: Enforce compatibility in your build pipeline\n**Team Configuration**: Share settings across your team\n\n[View Documentation](command:baseline-lens.openDocumentation)\n[Join Community](command:baseline-lens.openCommunity)",
+            "media": {
+              "markdown": "media/walkthrough/step6.md"
+            },
+            "completionEvents": []
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

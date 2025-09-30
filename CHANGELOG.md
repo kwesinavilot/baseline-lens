@@ -5,6 +5,50 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-09-30
+
+### Added
+- **Interactive Walkthrough Onboarding Experience**
+  - Complete VS Code walkthrough with 6 step-by-step interactive guides
+  - Automatic walkthrough launch on first extension activation
+  - Smart completion events that mark steps as done when users perform actions
+  - Rich markdown content for each step with practical tips and guidance
+  - Interactive command links embedded directly in walkthrough steps
+  - Manual walkthrough access via Command Palette for returning users
+
+- **Enhanced User Onboarding**
+  - Step 1: Open web files (CSS, JS, HTML) with automatic completion detection
+  - Step 2: Discover compatibility indicators (✅, ⚠️, 🚫) with hover tracking
+  - Step 3: Review Problems panel integration with automatic navigation
+  - Step 4: Generate project compatibility reports with guided workflow
+  - Step 5: Configure extension settings with direct settings access
+  - Step 6: Explore advanced features with community and documentation links
+
+- **New Commands and Integration**
+  - `baseline-lens.showWalkthrough` - Manually trigger getting started guide
+  - `baseline-lens.openDocumentation` - Direct link to extension documentation
+  - `baseline-lens.openCommunity` - Access to GitHub discussions and community
+  - Internal hover tracking command for walkthrough step completion
+  - Automatic first-time user detection with persistent state management
+
+- **Rich Media Content**
+  - Comprehensive markdown guides for each walkthrough step
+  - Visual explanations of compatibility indicators and their meanings
+  - Detailed configuration guidance with practical examples
+  - Advanced feature explanations including CI/CD integration and team collaboration
+  - Community resources and contribution guidelines
+
+### Changed
+- Enhanced hover provider to emit tracking events for walkthrough completion
+- Updated package.json with complete walkthrough configuration and new commands
+- Improved extension activation flow with intelligent first-time user experience
+- Added proper command registration and disposal for walkthrough functionality
+
+### Fixed
+- Extension activation timing to ensure walkthrough displays correctly
+- Command registration order to prevent walkthrough initialization issues
+- Hover provider integration with walkthrough step tracking
+
 ## [0.6.0] - 2025-09-30
 
 ### Added

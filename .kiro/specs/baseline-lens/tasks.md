@@ -226,3 +226,12 @@
   - Add troubleshooting guide and FAQ section
   - Prepare extension for VS Code marketplace submission
   - _Requirements: All requirements - final integration and user experience_
+
+- [ ] 17. Implement interactive walkthrough onboarding experience
+  - Create VS Code walkthrough configuration in package.json with step-by-step guide
+  - Implement walkthrough steps covering file opening, feature detection, diagnostics, and reporting
+  - Add completion events that automatically mark steps as done when users perform actions
+  - Create walkthrough media assets (images and markdown content) for each step
+  - Add command to manually trigger walkthrough for returning users
+  - Integrate walkthrough launch on first extension activation
+  - _Requirements: 5.4, 8.4_

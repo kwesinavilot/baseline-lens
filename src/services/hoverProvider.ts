@@ -63,6 +63,11 @@ export class HoverProvider implements vscode.HoverProvider {
         // Cache the result
         this.cacheHover(cacheKey, hoverContent);
 
+        // Emit command for walkthrough tracking
+        vscode.commands.executeCommand('baseline-lens.showHover').catch(() => {
+            // Ignore errors - this is just for walkthrough tracking
+        });
+
         return new vscode.Hover(hoverContent, feature.range);
     }
 

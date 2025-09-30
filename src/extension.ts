@@ -254,6 +254,37 @@ export async function activate(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage(`Failed to validate configuration: ${error instanceof Error ? error.message : String(error)}`);
             }
         });
+
+        // Walkthrough commands
+        const showWalkthroughCommand = vscode.commands.registerCommand('baseline-lens.showWalkthrough', async () => {
+            try {
+                await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'baseline-lens.getting-started');
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to open walkthrough: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
+        const openDocumentationCommand = vscode.commands.registerCommand('baseline-lens.openDocumentation', async () => {
+            try {
+                await vscode.env.openExternal(vscode.Uri.parse('https://github.com/kwesinavilot/baseline-lens#readme'));
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to open documentation: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
+        const openCommunityCommand = vscode.commands.registerCommand('baseline-lens.openCommunity', async () => {
+            try {
+                await vscode.env.openExternal(vscode.Uri.parse('https://github.com/kwesinavilot/baseline-lens/discussions'));
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to open community: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
+        // Internal command for walkthrough tracking
+        const showHoverCommand = vscode.commands.registerCommand('baseline-lens.showHover', () => {
+            // This command is used internally to track when hover is shown for walkthrough completion
+            // No action needed - just used as a completion event
+        });
         
 
         
@@ -278,11 +309,29 @@ export async function activate(context: vscode.ExtensionContext) {
             importTeamConfigCommand,
             resetConfigurationCommand,
             validateConfigurationCommand,
+            showWalkthroughCommand,
+            openDocumentationCommand,
+            openCommunityCommand,
+            showHoverCommand,
             showErrorStatsCommand,
             uiService,
             analysisEngine
         );
         
+        // Show walkthrough on first activation
+        const hasShownWalkthrough = context.globalState.get('baseline-lens.hasShownWalkthrough', false);
+        if (!hasShownWalkthrough) {
+            // Delay showing walkthrough to ensure extension is fully loaded
+            setTimeout(async () => {
+                try {
+                    await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'baseline-lens.getting-started');
+                    await context.globalState.update('baseline-lens.hasShownWalkthrough', true);
+                } catch (error) {
+                    console.warn('Failed to show initial walkthrough:', error);
+                }
+            }, 2000);
+        }
+
         console.log('Baseline Lens extension initialized successfully');
     } catch (error) {
         console.error('Failed to activate Baseline Lens extension:', error);
