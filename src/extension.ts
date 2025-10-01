@@ -6,6 +6,7 @@ import { FileWatcherService } from './services/fileWatcherService';
 import { ReportGenerator } from './services/reportGenerator';
 import { ConfigurationService } from './services/configurationService';
 import { CommandManager } from './core/commandManager';
+import { CodeActionCommands } from './services/codeActionProvider';
 
 let analysisEngine: AnalysisEngine;
 let compatibilityService: CompatibilityDataService;
@@ -150,6 +151,12 @@ export async function activate(context: vscode.ExtensionContext) {
         
         analysisEngine = new AnalysisEngine();
         
+        // Register analyzers with compatibility service
+        const { CSSAnalyzer, JavaScriptAnalyzer, HTMLAnalyzer } = await import('./analyzers');
+        analysisEngine.registerAnalyzer(['css', 'scss', 'sass', 'less'], new CSSAnalyzer(compatibilityService));
+        analysisEngine.registerAnalyzer(['javascript', 'typescript', 'javascriptreact', 'typescriptreact'], new JavaScriptAnalyzer(compatibilityService));
+        analysisEngine.registerAnalyzer(['html', 'vue', 'svelte'], new HTMLAnalyzer(compatibilityService));
+        
         // Update analysis engine configuration based on user settings
         const config = configurationService.getConfiguration();
         analysisEngine.updateConfiguration({
@@ -167,7 +174,6 @@ export async function activate(context: vscode.ExtensionContext) {
         await fileWatcherService.initialize();
 
         // Register commands and providers
-        uiService.registerCommands(context);
         
         // Register commands using CommandManager for safe registration
         const generateReportSuccess = await commandManager.registerCommand('baseline-lens.generateReport', async () => {
@@ -300,12 +306,16 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         });
 
-        const openDocumentationSuccess = await commandManager.registerCommand('baseline-lens.openDocumentation', async () => {
-            try {
-                await vscode.env.openExternal(vscode.Uri.parse('https://github.com/kwesinavilot/baseline-lens#readme'));
-            } catch (error) {
-                vscode.window.showErrorMessage(`Failed to open documentation: ${error instanceof Error ? error.message : String(error)}`);
-            }
+        const openDocumentationSuccess = await commandManager.registerCommand('baseline-lens.openDocumentation', async (feature) => {
+            await CodeActionCommands.openDocumentation(feature);
+        });
+
+        const showPolyfillInfoSuccess = await commandManager.registerCommand('baseline-lens.showPolyfillInfo', async (polyfill) => {
+            await CodeActionCommands.showPolyfillInfo(polyfill);
+        });
+
+        const showEducationalInfoSuccess = await commandManager.registerCommand('baseline-lens.showEducationalInfo', async (suggestion) => {
+            await CodeActionCommands.showEducationalInfo(suggestion);
         });
 
         const openCommunitySuccess = await commandManager.registerCommand('baseline-lens.openCommunity', async () => {
@@ -391,6 +401,27 @@ export async function activate(context: vscode.ExtensionContext) {
         const stats = commandManager.getRegistrationStats();
         console.log(`Command registration completed: ${stats.successfulRegistrations}/${stats.totalCommands} successful`);
 
+        // Debug: Test if analysis works
+        setTimeout(async () => {
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor && activeEditor.document) {
+                console.log('Testing analysis on active document:', activeEditor.document.fileName);
+                try {
+                    const result = await analysisEngine.analyzeDocument(activeEditor.document);
+                    console.log('Analysis result:', result);
+                    if (result.features.length > 0) {
+                        console.log('Found features:', result.features.map(f => f.name));
+                        uiService.updateDiagnostics(activeEditor.document, result.features);
+                        uiService.updateDecorations(activeEditor.document, result.features);
+                    } else {
+                        console.log('No features detected');
+                    }
+                } catch (error) {
+                    console.error('Analysis failed:', error);
+                }
+            }
+        }, 3000);
+        
         console.log('Baseline Lens extension initialized successfully');
     } catch (error) {
         console.error('Failed to activate Baseline Lens extension:', error);

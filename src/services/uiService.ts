@@ -350,15 +350,9 @@ export class UIService {
             CodeActionCommands.showEducationalInfo
         );
 
-        const openDocumentationCommand = vscode.commands.registerCommand(
-            'baseline-lens.openDocumentation',
-            CodeActionCommands.openDocumentation
-        );
-
         context.subscriptions.push(
             showPolyfillInfoCommand,
-            showEducationalInfoCommand,
-            openDocumentationCommand
+            showEducationalInfoCommand
         );
     }
 

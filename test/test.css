@@ -81,3 +81,7 @@
         margin: 0;
     }
 }
+
+.card:has(.featured) {
+  border: 2px solid blue;
+}

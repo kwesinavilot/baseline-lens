@@ -95,7 +95,6 @@ function logged(target: any, propertyKey: string, descriptor: PropertyDescriptor
 }
 
 class DecoratedClass {
-    @logged
     doSomething(value: string): string {
         return `Processed: ${value}`;
     }

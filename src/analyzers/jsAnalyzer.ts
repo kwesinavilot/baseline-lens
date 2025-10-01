@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { parse, Node } from 'acorn';
 import { DetectedFeature, BaselineStatus } from '../types';
 import { AbstractBaseAnalyzer } from './baseAnalyzer';
+import { CompatibilityDataService } from '../services/compatibilityService';
 
 interface AcornNode extends Node {
     type: string;
@@ -33,13 +34,11 @@ interface AcornNode extends Node {
 }
 
 export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
-    private webAPIMap: Map<string, string> = new Map();
-    private syntaxFeatureMap: Map<string, string> = new Map();
-    private builtinMap: Map<string, string> = new Map();
+    private compatibilityService: CompatibilityDataService;
 
-    constructor() {
+    constructor(compatibilityService?: CompatibilityDataService) {
         super(['javascript', 'typescript', 'javascriptreact', 'typescriptreact']);
-        this.initializeFeatureMaps();
+        this.compatibilityService = compatibilityService || new CompatibilityDataService();
     }
 
     async analyze(content: string, document: vscode.TextDocument): Promise<DetectedFeature[]> {
@@ -70,211 +69,7 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
         }, document, 'javascript_analysis');
     }
 
-    private initializeFeatureMaps(): void {
-        // Web APIs mapping to web-features identifiers
-        this.webAPIMap = new Map([
-            // Fetch API
-            ['fetch', 'fetch'],
-            ['Request', 'fetch'],
-            ['Response', 'fetch'],
-            ['Headers', 'fetch'],
-            
-            // Service Workers
-            ['ServiceWorker', 'serviceworkers'],
-            ['navigator.serviceWorker', 'serviceworkers'],
-            
-            // Web Workers
-            ['Worker', 'webworkers'],
-            ['SharedWorker', 'sharedworkers'],
-            
-            // Storage APIs
-            ['localStorage', 'webstorage'],
-            ['sessionStorage', 'webstorage'],
-            ['indexedDB', 'indexeddb'],
-            
-            // Geolocation
-            ['navigator.geolocation', 'geolocation'],
-            
-            // Notifications
-            ['Notification', 'notifications'],
-            
-            // WebRTC
-            ['RTCPeerConnection', 'webrtc'],
-            ['getUserMedia', 'getusermedia'],
-            ['navigator.mediaDevices', 'mediadevices'],
-            
-            // Canvas and WebGL
-            ['getContext', 'canvas'],
-            ['WebGLRenderingContext', 'webgl'],
-            ['WebGL2RenderingContext', 'webgl2'],
-            
-            // Web Audio
-            ['AudioContext', 'webaudio'],
-            ['webkitAudioContext', 'webaudio'],
-            
-            // Intersection Observer
-            ['IntersectionObserver', 'intersectionobserver'],
-            
-            // Resize Observer
-            ['ResizeObserver', 'resizeobserver'],
-            
-            // Mutation Observer
-            ['MutationObserver', 'mutationobserver'],
-            
-            // Performance API
-            ['performance', 'performance-timeline'],
-            ['PerformanceObserver', 'performance-observer'],
-            
-            // Clipboard API
-            ['navigator.clipboard', 'clipboard-api'],
-            
-            // File API
-            ['File', 'fileapi'],
-            ['FileReader', 'fileapi'],
-            ['Blob', 'fileapi'],
-            
-            // WebSockets
-            ['WebSocket', 'websockets'],
-            
-            // History API
-            ['history.pushState', 'history'],
-            ['history.replaceState', 'history'],
-            
-            // Page Visibility
-            ['document.visibilityState', 'page-visibility'],
-            
-            // Fullscreen API
-            ['requestFullscreen', 'fullscreen'],
-            
-            // Pointer Events
-            ['PointerEvent', 'pointer-events'],
-            
-            // Touch Events
-            ['TouchEvent', 'touch'],
-            
-            // Gamepad API
-            ['navigator.getGamepads', 'gamepad'],
-            
-            // Battery API
-            ['navigator.getBattery', 'battery-status'],
-            
-            // Vibration API
-            ['navigator.vibrate', 'vibration'],
-            
-            // Screen Orientation
-            ['screen.orientation', 'screen-orientation'],
-            
-            // Payment Request
-            ['PaymentRequest', 'payment-request'],
-            
-            // Web Share
-            ['navigator.share', 'web-share'],
-            
-            // Broadcast Channel
-            ['BroadcastChannel', 'broadcastchannel'],
-            
-            // AbortController
-            ['AbortController', 'abortcontroller'],
-            ['AbortSignal', 'abortcontroller'],
-        ]);
 
-        // Modern JavaScript syntax features
-        this.syntaxFeatureMap = new Map([
-            // ES2015 (ES6)
-            ['ArrowFunctionExpression', 'arrow-functions'],
-            ['TemplateLiteral', 'template-literals'],
-            ['SpreadElement', 'spread-syntax'],
-            ['RestElement', 'rest-parameters'],
-            ['AssignmentPattern', 'default-parameters'],
-            ['ClassDeclaration', 'es6-class'],
-            ['ClassExpression', 'es6-class'],
-            ['ForOfStatement', 'for-of'],
-            ['ImportDeclaration', 'es6-module'],
-            ['ExportNamedDeclaration', 'es6-module'],
-            ['ExportDefaultDeclaration', 'es6-module'],
-            ['ExportAllDeclaration', 'es6-module'],
-            
-            // ES2017
-            ['async', 'async-functions'],
-            ['await', 'async-functions'],
-            
-            // ES2018
-            ['ObjectPattern', 'object-rest-spread'],
-            ['RestElement', 'object-rest-spread'],
-            
-            // ES2020
-            ['ChainExpression', 'optional-chaining'],
-            ['LogicalExpression', 'nullish-coalescing'],
-            ['ImportExpression', 'dynamic-import'],
-            
-            // ES2021
-            ['LogicalAssignmentExpression', 'logical-assignment'],
-            
-            // ES2022
-            ['PrivateIdentifier', 'private-class-fields'],
-            ['PropertyDefinition', 'public-class-fields'],
-            ['StaticBlock', 'static-class-features'],
-        ]);
-
-        // Built-in objects and methods
-        this.builtinMap = new Map([
-            // ES2015+
-            ['Promise', 'promises'],
-            ['Symbol', 'symbol'],
-            ['Map', 'map'],
-            ['Set', 'set'],
-            ['WeakMap', 'weakmap'],
-            ['WeakSet', 'weakset'],
-            ['Proxy', 'proxy'],
-            ['Reflect', 'reflect'],
-            
-            // ES2016+
-            ['Array.prototype.includes', 'array-includes'],
-            
-            // ES2017+
-            ['Object.values', 'object-values'],
-            ['Object.entries', 'object-entries'],
-            ['Object.getOwnPropertyDescriptors', 'object-getownpropertydescriptors'],
-            ['String.prototype.padStart', 'string-padding'],
-            ['String.prototype.padEnd', 'string-padding'],
-            
-            // ES2018+
-            ['Promise.prototype.finally', 'promise-finally'],
-            
-            // ES2019+
-            ['Array.prototype.flat', 'array-flat'],
-            ['Array.prototype.flatMap', 'array-flat'],
-            ['Object.fromEntries', 'object-fromentries'],
-            ['String.prototype.trimStart', 'string-trim'],
-            ['String.prototype.trimEnd', 'string-trim'],
-            
-            // ES2020+
-            ['BigInt', 'bigint'],
-            ['globalThis', 'globalthis'],
-            ['Promise.allSettled', 'promise-allsettled'],
-            ['String.prototype.matchAll', 'string-matchall'],
-            
-            // ES2021+
-            ['Promise.any', 'promise-any'],
-            ['String.prototype.replaceAll', 'string-replaceall'],
-            ['WeakRef', 'weakrefs'],
-            ['FinalizationRegistry', 'weakrefs'],
-            
-            // ES2022+
-            ['Array.prototype.at', 'array-at'],
-            ['String.prototype.at', 'string-at'],
-            ['Object.hasOwn', 'object-hasown'],
-            
-            // Intl APIs
-            ['Intl.DateTimeFormat', 'intl-datetimeformat'],
-            ['Intl.NumberFormat', 'intl-numberformat'],
-            ['Intl.Collator', 'intl-collator'],
-            ['Intl.PluralRules', 'intl-pluralrules'],
-            ['Intl.RelativeTimeFormat', 'intl-relativetimeformat'],
-            ['Intl.ListFormat', 'intl-listformat'],
-            ['Intl.Locale', 'intl-locale'],
-        ]);
-    }
 
     private stripTypeScript(content: string, languageId: string): string {
         if (!languageId.includes('typescript')) {
@@ -305,9 +100,10 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
             // Detect API usage through member expressions and identifiers
             if (node.type === 'MemberExpression') {
                 const apiName = this.getMemberExpressionName(node);
-                const featureId = this.webAPIMap.get(apiName);
+                const bcdKey = this.compatibilityService.mapJSAPIToBCD(apiName);
+                const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                 
-                if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                     const position = this.getPositionFromOffset(content, node.start);
                     const endPosition = this.getPositionFromOffset(content, node.end);
                     const range = this.createRange(
@@ -317,9 +113,8 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
                         endPosition.character
                     );
 
-                    const baselineStatus = this.getFeatureBaselineStatus(featureId);
                     features.push(this.createDetectedFeature(
-                        featureId,
+                        bcdKey,
                         apiName,
                         'javascript',
                         range,
@@ -336,9 +131,10 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
                     : node.name;
                 
                 if (name) {
-                    const featureId = this.webAPIMap.get(name);
+                    const bcdKey = this.compatibilityService.mapJSAPIToBCD(name);
+                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                     
-                    if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                    if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const position = this.getPositionFromOffset(content, node.start);
                         const endPosition = this.getPositionFromOffset(content, node.end);
                         const range = this.createRange(
@@ -348,9 +144,8 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
                             endPosition.character
                         );
 
-                        const baselineStatus = this.getFeatureBaselineStatus(featureId);
                         features.push(this.createDetectedFeature(
-                            featureId,
+                            bcdKey,
                             name,
                             'javascript',
                             range,
@@ -369,59 +164,53 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
         const features: DetectedFeature[] = [];
         
         this.walkAST(ast, (node: AcornNode) => {
-            let featureId: string | undefined;
+            let bcdKey: string | undefined;
             let featureName: string = '';
 
-            // Map AST node types to features
-            featureId = this.syntaxFeatureMap.get(node.type);
-            featureName = node.type;
-
-            // Special cases for syntax features
-            if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
+            // Map AST node types to BCD keys
+            if (node.type === 'ArrowFunctionExpression') {
+                bcdKey = 'javascript.functions.arrow_functions';
+                featureName = 'arrow function';
+            } else if (node.type === 'TemplateLiteral') {
+                bcdKey = 'javascript.grammar.template_literals';
+                featureName = 'template literal';
+            } else if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
                 if (node.async) {
-                    featureId = this.syntaxFeatureMap.get('async');
+                    bcdKey = 'javascript.statements.async_function';
                     featureName = 'async function';
                 }
-                if (node.generator) {
-                    featureId = 'generators';
-                    featureName = 'generator function';
-                }
-            }
-
-            if (node.type === 'AwaitExpression') {
-                featureId = this.syntaxFeatureMap.get('await');
+            } else if (node.type === 'AwaitExpression') {
+                bcdKey = 'javascript.operators.await';
                 featureName = 'await';
-            }
-
-            if (node.type === 'LogicalExpression' && node.operator === '??') {
-                featureId = this.syntaxFeatureMap.get('LogicalExpression');
+            } else if (node.type === 'LogicalExpression' && node.operator === '??') {
+                bcdKey = 'javascript.operators.nullish_coalescing';
                 featureName = 'nullish coalescing (??)';
-            }
-
-            if (node.type === 'MemberExpression' && node.optional) {
-                featureId = this.syntaxFeatureMap.get('ChainExpression');
+            } else if (node.type === 'MemberExpression' && node.optional) {
+                bcdKey = 'javascript.operators.optional_chaining';
                 featureName = 'optional chaining (?.)';
             }
 
-            if (featureId && this.shouldAnalyzeFeature(featureId)) {
-                const position = this.getPositionFromOffset(content, node.start);
-                const endPosition = this.getPositionFromOffset(content, node.end);
-                const range = this.createRange(
-                    position.line,
-                    position.character,
-                    endPosition.line,
-                    endPosition.character
-                );
+            if (bcdKey) {
+                const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
+                    const position = this.getPositionFromOffset(content, node.start);
+                    const endPosition = this.getPositionFromOffset(content, node.end);
+                    const range = this.createRange(
+                        position.line,
+                        position.character,
+                        endPosition.line,
+                        endPosition.character
+                    );
 
-                const baselineStatus = this.getFeatureBaselineStatus(featureId);
-                features.push(this.createDetectedFeature(
-                    featureId,
-                    featureName,
-                    'javascript',
-                    range,
-                    baselineStatus,
-                    `JavaScript syntax: ${featureName}`
-                ));
+                    features.push(this.createDetectedFeature(
+                        bcdKey,
+                        featureName,
+                        'javascript',
+                        range,
+                        baselineStatus,
+                        `JavaScript syntax: ${featureName}`
+                    ));
+                }
             }
         });
 
@@ -435,9 +224,10 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
             // Detect built-in objects and methods
             if (node.type === 'MemberExpression') {
                 const memberName = this.getMemberExpressionName(node);
-                const featureId = this.builtinMap.get(memberName);
+                const bcdKey = `javascript.builtins.${memberName.replace('.', '.')}`;
+                const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                 
-                if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                     const position = this.getPositionFromOffset(content, node.start);
                     const endPosition = this.getPositionFromOffset(content, node.end);
                     const range = this.createRange(
@@ -447,9 +237,8 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
                         endPosition.character
                     );
 
-                    const baselineStatus = this.getFeatureBaselineStatus(featureId);
                     features.push(this.createDetectedFeature(
-                        featureId,
+                        bcdKey,
                         memberName,
                         'javascript',
                         range,
@@ -463,10 +252,11 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
             if (node.type === 'Identifier' || (node.type === 'NewExpression' && node.callee?.type === 'Identifier')) {
                 const name = node.type === 'NewExpression' ? node.callee!.name : node.name;
                 
-                if (name) {
-                    const featureId = this.builtinMap.get(name);
+                if (name && ['Promise', 'Map', 'Set', 'WeakMap', 'WeakSet', 'Symbol', 'Proxy'].includes(name)) {
+                    const bcdKey = `javascript.builtins.${name}`;
+                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                     
-                    if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                    if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const position = this.getPositionFromOffset(content, node.start);
                         const endPosition = this.getPositionFromOffset(content, node.end);
                         const range = this.createRange(
@@ -476,9 +266,8 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
                             endPosition.character
                         );
 
-                        const baselineStatus = this.getFeatureBaselineStatus(featureId);
                         features.push(this.createDetectedFeature(
-                            featureId,
+                            bcdKey,
                             name,
                             'javascript',
                             range,
@@ -526,24 +315,5 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
         return objectName && propertyName ? `${objectName}.${propertyName}` : propertyName || objectName || '';
     }
 
-    private getFeatureBaselineStatus(featureId: string): BaselineStatus {
-        // Mock implementation - in real implementation, this would query CompatibilityDataService
-        const widelyAvailableFeatures = [
-            'promises', 'arrow-functions', 'template-literals', 'es6-class', 'fetch',
-            'webstorage', 'canvas', 'websockets', 'fileapi', 'geolocation'
-        ];
-        
-        const newlyAvailableFeatures = [
-            'async-functions', 'optional-chaining', 'nullish-coalescing', 'bigint',
-            'array-flat', 'object-fromentries', 'string-matchall', 'resizeobserver'
-        ];
 
-        if (widelyAvailableFeatures.includes(featureId)) {
-            return this.createMockBaselineStatus('widely_available');
-        } else if (newlyAvailableFeatures.includes(featureId)) {
-            return this.createMockBaselineStatus('newly_available');
-        } else {
-            return this.createMockBaselineStatus('limited_availability');
-        }
-    }
 }

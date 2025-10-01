@@ -4,23 +4,22 @@ import { DetectedFeature, BaselineStatus } from '../types';
 import { AbstractBaseAnalyzer } from './baseAnalyzer';
 import { CSSAnalyzer } from './cssAnalyzer';
 import { JavaScriptAnalyzer } from './jsAnalyzer';
+import { CompatibilityDataService } from '../services/compatibilityService';
 
 type Element = DefaultTreeAdapterMap['element'];
 type Node = DefaultTreeAdapterMap['node'];
 type TextNode = DefaultTreeAdapterMap['textNode'];
 
 export class HTMLAnalyzer extends AbstractBaseAnalyzer {
-    private htmlElementMap: Map<string, string> = new Map();
-    private htmlAttributeMap: Map<string, string> = new Map();
-    private inputTypeMap: Map<string, string> = new Map();
+    private compatibilityService: CompatibilityDataService;
     private cssAnalyzer: CSSAnalyzer;
     private jsAnalyzer: JavaScriptAnalyzer;
 
-    constructor() {
+    constructor(compatibilityService?: CompatibilityDataService) {
         super(['html', 'htm', 'vue', 'svelte', 'angular']);
-        this.cssAnalyzer = new CSSAnalyzer();
-        this.jsAnalyzer = new JavaScriptAnalyzer();
-        this.initializeFeatureMaps();
+        this.compatibilityService = compatibilityService || new CompatibilityDataService();
+        this.cssAnalyzer = new CSSAnalyzer(this.compatibilityService);
+        this.jsAnalyzer = new JavaScriptAnalyzer(this.compatibilityService);
     }
 
     async analyze(content: string, document: vscode.TextDocument): Promise<DetectedFeature[]> {
@@ -51,146 +50,7 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
         }, document, 'html_analysis');
     }
 
-    private initializeFeatureMaps(): void {
-        // HTML5 elements mapping to web-features identifiers
-        this.htmlElementMap = new Map([
-            // Semantic elements
-            ['article', 'html5-semantic'],
-            ['aside', 'html5-semantic'],
-            ['figcaption', 'html5-semantic'],
-            ['figure', 'html5-semantic'],
-            ['footer', 'html5-semantic'],
-            ['header', 'html5-semantic'],
-            ['main', 'html5-semantic'],
-            ['mark', 'html5-semantic'],
-            ['nav', 'html5-semantic'],
-            ['section', 'html5-semantic'],
-            ['summary', 'html5-semantic'],
-            ['time', 'html5-semantic'],
-            
-            // Media elements
-            ['audio', 'audio'],
-            ['video', 'video'],
-            ['source', 'audio'],
-            ['track', 'webvtt'],
-            
-            // Form elements
-            ['datalist', 'datalist'],
-            ['keygen', 'keygen'],
-            ['output', 'form-validation'],
-            ['progress', 'progressmeter'],
-            ['meter', 'meter'],
-            
-            // Interactive elements
-            ['details', 'details'],
-            ['dialog', 'dialog'],
-            ['menu', 'menu'],
-            
-            // Graphics and media
-            ['canvas', 'canvas'],
-            ['svg', 'svg'],
-            
-            // Web Components
-            ['template', 'template'],
-            ['slot', 'shadowdom'],
-            
-            // Embedded content
-            ['embed', 'plugins'],
-            ['object', 'plugins'],
-            ['iframe', 'iframe'],
-            
-            // Ruby annotation
-            ['ruby', 'ruby'],
-            ['rt', 'ruby'],
-            ['rp', 'ruby'],
-        ]);
 
-        // HTML attributes mapping
-        this.htmlAttributeMap = new Map([
-            // Global attributes
-            ['contenteditable', 'contenteditable'],
-            ['draggable', 'dragndrop'],
-            ['hidden', 'hidden'],
-            ['spellcheck', 'spellcheck'],
-            ['translate', 'translate'],
-            ['dir', 'dir'],
-            ['lang', 'lang'],
-            
-            // ARIA attributes
-            ['aria-label', 'wai-aria'],
-            ['aria-labelledby', 'wai-aria'],
-            ['aria-describedby', 'wai-aria'],
-            ['aria-hidden', 'wai-aria'],
-            ['aria-expanded', 'wai-aria'],
-            ['aria-controls', 'wai-aria'],
-            ['aria-live', 'wai-aria'],
-            ['role', 'wai-aria'],
-            
-            // Form attributes
-            ['autocomplete', 'form-validation'],
-            ['autofocus', 'autofocus'],
-            ['form', 'form-validation'],
-            ['formaction', 'form-validation'],
-            ['formenctype', 'form-validation'],
-            ['formmethod', 'form-validation'],
-            ['formnovalidate', 'form-validation'],
-            ['formtarget', 'form-validation'],
-            ['list', 'datalist'],
-            ['max', 'form-validation'],
-            ['min', 'form-validation'],
-            ['multiple', 'form-validation'],
-            ['pattern', 'form-validation'],
-            ['placeholder', 'input-placeholder'],
-            ['required', 'form-validation'],
-            ['step', 'form-validation'],
-            
-            // Media attributes
-            ['autoplay', 'audio'],
-            ['controls', 'audio'],
-            ['loop', 'audio'],
-            ['muted', 'audio'],
-            ['preload', 'audio'],
-            ['poster', 'video'],
-            
-            // Link attributes
-            ['download', 'download'],
-            ['rel', 'link-rel'],
-            ['hreflang', 'hreflang'],
-            ['type', 'link-type'],
-            
-            // Security attributes
-            ['crossorigin', 'cors'],
-            ['integrity', 'subresource-integrity'],
-            ['referrerpolicy', 'referrer-policy'],
-            
-            // Performance attributes
-            ['loading', 'loading'],
-            ['decoding', 'img-decoding-async'],
-            
-            // Microdata
-            ['itemscope', 'microdata'],
-            ['itemtype', 'microdata'],
-            ['itemprop', 'microdata'],
-            ['itemref', 'microdata'],
-            ['itemid', 'microdata'],
-        ]);
-
-        // Input types mapping
-        this.inputTypeMap = new Map([
-            ['color', 'input-color'],
-            ['date', 'input-datetime'],
-            ['datetime-local', 'input-datetime'],
-            ['email', 'input-email'],
-            ['month', 'input-datetime'],
-            ['number', 'input-number'],
-            ['range', 'input-range'],
-            ['search', 'input-search'],
-            ['tel', 'input-tel'],
-            ['time', 'input-datetime'],
-            ['url', 'input-url'],
-            ['week', 'input-datetime'],
-        ]);
-    }
 
     private extractHTMLFromFramework(content: string, languageId: string): string {
         switch (languageId) {
@@ -221,9 +81,10 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
         this.walkHTML(documentNode, (node: Node) => {
             if (node.nodeName && node.nodeName !== '#text' && node.nodeName !== '#document') {
                 const elementName = node.nodeName.toLowerCase();
-                const featureId = this.htmlElementMap.get(elementName);
+                const bcdKey = this.compatibilityService.mapHTMLElementToBCD(elementName);
+                const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                 
-                if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                     const location = (node as Element).sourceCodeLocation;
                     if (location) {
                         const range = this.createRange(
@@ -233,9 +94,8 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                             location.endCol - 1
                         );
 
-                        const baselineStatus = this.getFeatureBaselineStatus(featureId);
                         features.push(this.createDetectedFeature(
-                            featureId,
+                            bcdKey,
                             elementName,
                             'html',
                             range,
@@ -259,14 +119,10 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                 
                 element.attrs.forEach(attr => {
                     const attrName = attr.name.toLowerCase();
-                    let featureId = this.htmlAttributeMap.get(attrName);
+                    const bcdKey = `html.global_attributes.${attrName}`;
+                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                     
-                    // Handle ARIA attributes with wildcard matching
-                    if (!featureId && attrName.startsWith('aria-')) {
-                        featureId = this.htmlAttributeMap.get('aria-label'); // Use any ARIA feature as representative
-                    }
-                    
-                    if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                    if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const location = element.sourceCodeLocation;
                         if (location && location.attrs && location.attrs[attr.name]) {
                             const attrLocation = location.attrs[attr.name];
@@ -277,9 +133,8 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                                 attrLocation.endCol - 1
                             );
 
-                            const baselineStatus = this.getFeatureBaselineStatus(featureId);
                             features.push(this.createDetectedFeature(
-                                featureId,
+                                bcdKey,
                                 attrName,
                                 'html',
                                 range,
@@ -305,9 +160,10 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                 
                 if (typeAttr) {
                     const inputType = typeAttr.value.toLowerCase();
-                    const featureId = this.inputTypeMap.get(inputType);
+                    const bcdKey = `html.elements.input.type_${inputType}`;
+                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
                     
-                    if (featureId && this.shouldAnalyzeFeature(featureId)) {
+                    if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const location = element.sourceCodeLocation;
                         if (location && location.attrs && location.attrs.type) {
                             const typeLocation = location.attrs.type;
@@ -318,9 +174,8 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                                 typeLocation.endCol - 1
                             );
 
-                            const baselineStatus = this.getFeatureBaselineStatus(featureId);
                             features.push(this.createDetectedFeature(
-                                featureId,
+                                bcdKey,
                                 inputType,
                                 'html',
                                 range,
@@ -472,24 +327,5 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
         return textContent;
     }
 
-    private getFeatureBaselineStatus(featureId: string): BaselineStatus {
-        // Mock implementation - in real implementation, this would query CompatibilityDataService
-        const widelyAvailableFeatures = [
-            'html5-semantic', 'audio', 'video', 'canvas', 'form-validation',
-            'contenteditable', 'dragndrop', 'hidden', 'input-email', 'input-url'
-        ];
-        
-        const newlyAvailableFeatures = [
-            'dialog', 'details', 'template', 'loading', 'input-color',
-            'input-datetime', 'wai-aria', 'subresource-integrity'
-        ];
 
-        if (widelyAvailableFeatures.includes(featureId)) {
-            return this.createMockBaselineStatus('widely_available');
-        } else if (newlyAvailableFeatures.includes(featureId)) {
-            return this.createMockBaselineStatus('newly_available');
-        } else {
-            return this.createMockBaselineStatus('limited_availability');
-        }
-    }
 }

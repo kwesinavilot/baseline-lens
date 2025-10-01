@@ -90,10 +90,6 @@
         "title": "Show Educational Information"
       },
       {
-        "command": "baseline-lens.openDocumentation",
-        "title": "Open Documentation"
-      },
-      {
         "command": "baseline-lens.exportTeamConfig",
         "title": "Export Team Configuration",
         "category": "Baseline Lens"
@@ -373,7 +369,7 @@
           {
             "id": "baseline-lens.step.learn-more",
             "title": "Explore advanced features",
-            "description": "You're all set! Here are some advanced features to explore:\n\n**Smart Suggestions**: Get alternative approaches for risky features\n**Code Actions**: Quick fixes and polyfill suggestions\n**CI/CD Integration**: Enforce compatibility in your build pipeline\n**Team Configuration**: Share settings across your team\n\n[View Documentation](command:baseline-lens.openDocumentation)\n[Join Community](command:baseline-lens.openCommunity)",
+            "description": "You're all set! Here are some advanced features to explore:\n\n**Smart Suggestions**: Get alternative approaches for risky features\n**Code Actions**: Quick fixes and polyfill suggestions\n**CI/CD Integration**: Enforce compatibility in your build pipeline\n**Team Configuration**: Share settings across your team\n\n[Join Community](command:baseline-lens.openCommunity)",
             "media": {
               "markdown": "media/walkthrough/step6.md"
             },
@@ -418,8 +414,10 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "@mdn/browser-compat-data": "^7.1.9",
     "acorn": "^8.8.1",
     "commander": "^10.0.1",
+    "compute-baseline": "^0.4.0",
     "glob": "^8.0.3",
     "parse5": "^7.1.2",
     "postcss": "^8.4.20",

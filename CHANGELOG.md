@@ -5,6 +5,29 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-10-01
+
+### Added
+- **Real Web-Features Integration**
+  - Integrated actual web-features package for authentic compatibility data
+  - Added @mdn/browser-compat-data package for comprehensive BCD analysis
+  - Implemented granular BCD key mapping for CSS properties and values
+  - Real baseline status computation using direct BCD data analysis
+
+### Fixed
+- **Extension Activation and Analysis**
+  - Fixed duplicate command registration errors during extension reloading
+  - Resolved analyzer registration issues preventing feature detection
+  - Fixed BCD key format mapping for proper compatibility lookups
+  - Corrected TypeScript compilation errors with compute-baseline package
+
+### Changed
+- **Compatibility Analysis Engine**
+  - Transitioned from mock data to real web-features and BCD integration
+  - Updated CSS analyzer to use granular property-value BCD keys
+  - Enhanced compatibility service with direct BCD data traversal
+  - Improved feature filtering to highlight only non-widely-available features
+
 ## [0.8.0] - 2025-10-01
 
 ### Added

@@ -1,0 +1,36 @@
+.container {
+  /* These should have limited support */
+  view-transition-name: slide;
+  anchor-name: --my-anchor;
+  position-anchor: --my-anchor;
+  scroll-timeline: --scroll;
+  animation-timeline: --scroll;
+}
+
+.element {
+  /* CSS Nesting - might be limited */
+  .nested {
+    color: red;
+    
+    &:hover {
+      color: blue;
+    }
+  }
+}
+
+/* Cascade layers - check support */
+@layer utilities {
+  .utility { margin: 0; }
+}
+
+/* Container queries - check support */
+@container (width > 300px) {
+  .responsive { padding: 1rem; }
+}
+
+/* CSS functions that might be limited */
+.functions {
+  width: round(up, 2.3px, 1px);
+  height: mod(18px, 5px);
+  transform: sin(45deg);
+}

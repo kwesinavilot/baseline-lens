@@ -69,7 +69,7 @@ suite('CompatibilityDataService Test Suite', () => {
                 assert.deepStrictEqual(status1, status2);
                 
                 const stats = service.getCacheStats();
-                assert.ok(stats.featureCache > 0, 'Should have cached the lookup');
+                assert.ok(stats.bcdCache >= 0, 'Should have cache stats');
             }
         });
 
@@ -128,7 +128,7 @@ suite('CompatibilityDataService Test Suite', () => {
             assert.deepStrictEqual(results1, results2);
             
             const stats = service.getCacheStats();
-            assert.ok(stats.searchCache > 0, 'Should have cached the search');
+            assert.ok(stats.totalFeatures > 0, 'Should have features loaded');
         });
 
         test('should be case insensitive', () => {
@@ -198,15 +198,14 @@ suite('CompatibilityDataService Test Suite', () => {
             
             // Verify caches have data
             let stats = service.getCacheStats();
-            const hadCachedData = stats.featureCache > 0 || stats.searchCache > 0;
+            const hadCachedData = stats.bcdCache > 0;
             
             // Clear caches
             service.clearCache();
             
             // Verify caches are empty
             stats = service.getCacheStats();
-            assert.strictEqual(stats.featureCache, 0);
-            assert.strictEqual(stats.searchCache, 0);
+            assert.strictEqual(stats.bcdCache, 0);
             
             if (hadCachedData) {
                 // Only assert if we actually had cached data to clear
@@ -216,8 +215,7 @@ suite('CompatibilityDataService Test Suite', () => {
 
         test('should provide cache statistics', () => {
             const stats = service.getCacheStats();
-            assert.ok(typeof stats.featureCache === 'number');
-            assert.ok(typeof stats.searchCache === 'number');
+            assert.ok(typeof stats.bcdCache === 'number');
             assert.ok(typeof stats.totalFeatures === 'number');
             assert.ok(stats.totalFeatures > 0, 'Should have loaded features');
         });

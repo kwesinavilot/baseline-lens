@@ -181,18 +181,5 @@ export abstract class AbstractBaseAnalyzer implements BaseAnalyzer {
         };
     }
 
-    /**
-     * Create a mock baseline status for testing purposes
-     */
-    protected createMockBaselineStatus(status: 'widely_available' | 'newly_available' | 'limited_availability'): BaselineStatus {
-        return {
-            status,
-            baseline_date: status === 'widely_available' ? '2020-01-01' : undefined,
-            support: {
-                chrome: { version_added: '80' },
-                firefox: { version_added: '75' },
-                safari: { version_added: '13.1' }
-            }
-        };
-    }
+
 }
