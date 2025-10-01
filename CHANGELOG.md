@@ -5,6 +5,39 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-10-01
+
+### Added
+- **Robust Command Registration System**
+  - New CommandManager class for safe command registration with duplicate command handling
+  - Command registration utilities with comprehensive error handling and recovery mechanisms
+  - Development mode detection with enhanced logging for debugging command registration issues
+  - Diagnostic information system for troubleshooting command registration problems
+  - Fallback mode for partial functionality when commands fail to register
+  - Unit test suite for CommandManager functionality with comprehensive test coverage
+
+### Improved
+- **Enhanced Extension Lifecycle Management**
+  - Refactored extension.ts to use CommandManager for all command registrations
+  - Enhanced deactivate function with proper cleanup verification and resource leak prevention
+  - Improved service disposal order with comprehensive error handling and logging
+  - Added cleanup verification to ensure all services are properly disposed
+  - Enhanced error handling during extension activation with better user feedback
+
+### Fixed
+- Command registration conflicts during development and extension reloading
+- Resource leaks during extension deactivation
+- Proper disposal of all services in correct order to prevent memory leaks
+
+## [0.7.3] - 2025-10-01
+
+### Improved
+- **Enhanced Command Registration System**
+  - Refactored extension.ts to use CommandManager for safer command registration
+  - Added automatic conflict resolution and graceful error handling for command registration failures
+  - Implemented proper cleanup and disposal of commands during extension deactivation
+  - Enhanced reliability with fallback mode and retry mechanisms for failed command registrations
+
 ## [0.7.2] - 2025-09-30
 
 ### Changed
