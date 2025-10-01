@@ -37,19 +37,22 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
         }, document, 'css_analysis');
     }
 
-
-
     private detectProperties(root: postcss.Root, content: string, document: vscode.TextDocument): DetectedFeature[] {
         const features: DetectedFeature[] = [];
 
         root.walkDecls((decl) => {
             const prop = decl.prop.toLowerCase();
-
             const value = decl.value.toLowerCase();
 
-            // Get BCD key for this property
-            const bcdKey = this.compatibilityService.mapCSSPropertyToBCD(prop, this.extractFirstValue(value));
-            const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+            // Try property first, then property with value if property alone has no data
+            let bcdKey = this.compatibilityService.mapCSSPropertyToBCD(prop);
+            let baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+            
+            // If property alone has no data, try with specific value
+            if (!baselineStatus) {
+                bcdKey = this.compatibilityService.mapCSSPropertyToBCD(prop, this.extractFirstValue(value));
+                baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+            }
             
             if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                 const position = this.getPositionFromSource(decl.source, content);
@@ -71,7 +74,10 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
                     ));
                 }
             }
-            console.log(`CSS property '${prop}' -> BCD key '${bcdKey}' -> status:`, baselineStatus);
+            // Only log if we found a status to reduce noise
+            if (baselineStatus) {
+                console.log(`CSS property '${prop}' -> BCD key '${bcdKey}' -> status: ${baselineStatus.status}`);
+            }
         });
 
         return features;
@@ -87,10 +93,14 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
             const modernSelectors = [':has', ':is', ':where', ':not', '::backdrop', '::placeholder'];
             for (const selectorPattern of modernSelectors) {
                 if (selector.includes(selectorPattern)) {
-                    const bcdKey = `css.selectors.${selectorPattern.replace(/:/g, '').replace(/-/g, '_')}`;
+                    let bcdKey = `css.selectors.${selectorPattern.replace(/:/g, '').replace(/-/g, '_')}`;
+                    // Special case for :has selector
+                    if (selectorPattern === ':has') {
+                        bcdKey = 'css.selectors.has';
+                    }
                     const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
                     
-                    if (baselineStatus && baselineStatus.status !== 'widely_available' && this.shouldAnalyzeFeature(bcdKey)) {
+                    if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const position = this.getPositionFromSource(rule.source, content);
                         if (position) {
                             const range = this.createRange(
@@ -125,7 +135,7 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
             const bcdKey = `css.at_rules.${ruleName.replace(/-/g, '_')}`;
             const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
 
-            if (baselineStatus && baselineStatus.status !== 'widely_available' && this.shouldAnalyzeFeature(bcdKey)) {
+            if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                 const position = this.getPositionFromSource(atRule.source, content);
                 if (position) {
                     const range = this.createRange(
@@ -165,7 +175,7 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
                 const bcdKey = `css.types.${functionName.replace(/-/g, '_')}`;
                 const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
 
-                if (baselineStatus && baselineStatus.status !== 'widely_available' && this.shouldAnalyzeFeature(bcdKey)) {
+                if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                     const position = this.getPositionFromSource(decl.source, content);
                     if (position) {
                         // Calculate the position of the function within the declaration
@@ -207,7 +217,7 @@ export class CSSAnalyzer extends AbstractBaseAnalyzer {
             /styled\.[a-zA-Z]+`([^`]+)`/g,
             // css prop: css`...`
             /css`([^`]+)`/g,
-            // emotion: css({ ... })
+            // emotion: css\s*\(\s*{([^}]+)}\s*\)/g,
             /css\s*\(\s*{([^}]+)}\s*\)/g,
             // style objects: { color: 'red', ... }
             /style\s*=\s*\{\s*\{([^}]+)\}\s*\}/g,

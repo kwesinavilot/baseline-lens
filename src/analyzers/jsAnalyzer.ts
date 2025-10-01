@@ -101,7 +101,12 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
             if (node.type === 'MemberExpression') {
                 const apiName = this.getMemberExpressionName(node);
                 const bcdKey = this.compatibilityService.mapJSAPIToBCD(apiName);
-                const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                let baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                
+                // Try BCD lookup if web-features lookup fails
+                if (!baselineStatus) {
+                    baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                }
                 
                 if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                     const position = this.getPositionFromOffset(content, node.start);
@@ -132,7 +137,12 @@ export class JavaScriptAnalyzer extends AbstractBaseAnalyzer {
                 
                 if (name) {
                     const bcdKey = this.compatibilityService.mapJSAPIToBCD(name);
-                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                    let baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                    
+                    // Try BCD lookup if web-features lookup fails
+                    if (!baselineStatus) {
+                        baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                    }
                     
                     if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const position = this.getPositionFromOffset(content, node.start);

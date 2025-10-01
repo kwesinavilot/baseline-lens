@@ -5,6 +5,34 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2025-01-03
+
+### Added
+- **Dynamic Feature Detection System**
+  - Replaced hardcoded feature mappings with dynamic BCD data lookup
+  - Automatic detection of any CSS property, JavaScript API, or HTML element in BCD database
+  - Multi-path BCD key resolution for comprehensive feature coverage
+  - Real-time validation against actual MDN Browser Compatibility Data
+
+### Changed
+- **Improved CSS Analysis Priority**
+  - CSS analyzer now prioritizes property-level compatibility over value-specific compatibility
+  - Better alignment with VS Code's built-in CSS analysis behavior
+  - Focuses on base features (e.g., `transform`) rather than specific implementations (`transform:-sin45deg`)
+
+- **Enhanced Hover UI Design**
+  - Replaced browser checkmarks with colored browser icons (🟡 Chrome, 🟠 Firefox, 🔵 Safari, 🟢 Edge)
+  - Changed limited availability warnings from red to yellow for better visual hierarchy
+  - Reduced font sizes of section headings for more compact hover cards
+  - External links now use base feature names for better search results
+  - Cleaner, more focused hover card presentation
+
+### Fixed
+- **Feature Mapping Accuracy**
+  - Eliminated hardcoded lists of CSS values, JavaScript APIs, and HTML attributes
+  - Dynamic feature detection ensures comprehensive coverage without manual maintenance
+  - Proper BCD key formatting for accurate compatibility lookups
+
 ## [0.9.0] - 2025-10-01
 
 ### Added

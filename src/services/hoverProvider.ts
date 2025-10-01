@@ -94,8 +94,11 @@ export class HoverProvider implements vscode.HoverProvider {
         // Header with feature name and status icon
         const statusIcon = this.getStatusIcon(feature.baselineStatus.status);
         const statusColor = this.getStatusColor(feature.baselineStatus.status);
+        
+        // Extract base feature name (e.g., 'transform' from 'transform:-sin45deg')
+        const baseFeatureName = this.extractBaseFeatureName(feature.name);
 
-        markdown.appendMarkdown(`# ${statusIcon} ${feature.name}\n\n`);
+        markdown.appendMarkdown(`### ${statusIcon} ${baseFeatureName}\n\n`);
 
         // Status badge
         const statusText = this.getStatusText(feature.baselineStatus.status);
@@ -134,7 +137,7 @@ export class HoverProvider implements vscode.HoverProvider {
      * Append baseline information to hover content
      */
     private appendBaselineInfo(markdown: vscode.MarkdownString, baseline: BaselineStatus): void {
-        markdown.appendMarkdown(`## 📊 Baseline Status\n\n`);
+        markdown.appendMarkdown(`#### 📊 Baseline Status\n\n`);
 
         const statusDescription = this.getDetailedStatusDescription(baseline.status);
         markdown.appendMarkdown(`${statusDescription}\n\n`);
@@ -162,7 +165,7 @@ export class HoverProvider implements vscode.HoverProvider {
             return;
         }
 
-        markdown.appendMarkdown(`## 🌐 Browser Support\n\n`);
+        markdown.appendMarkdown(`#### 🌐 Browser Support\n\n`);
         markdown.appendMarkdown(`| Browser | Version | Notes |\n`);
         markdown.appendMarkdown(`|---------|---------|-------|\n`);
 
@@ -181,9 +184,9 @@ export class HoverProvider implements vscode.HoverProvider {
             const browserName = this.formatBrowserName(browser);
             const version = this.formatVersion(support.version_added);
             const notes = support.notes || '';
-            const supportIcon = this.getSupportIcon(support.version_added);
+            const browserIcon = this.getBrowserIcon(browser);
 
-            markdown.appendMarkdown(`| ${supportIcon} ${browserName} | ${version} | ${notes} |\n`);
+            markdown.appendMarkdown(`| ${browserIcon} ${browserName} | ${version} | ${notes} |\n`);
         }
 
         markdown.appendMarkdown(`\n`);
@@ -193,7 +196,7 @@ export class HoverProvider implements vscode.HoverProvider {
      * Append educational content based on feature status
      */
     private appendEducationalContent(markdown: vscode.MarkdownString, feature: DetectedFeature): void {
-        markdown.appendMarkdown(`## 💡 What This Means\n\n`);
+        markdown.appendMarkdown(`#### 💡 What This Means\n\n`);
 
         switch (feature.baselineStatus.status) {
             case 'widely_available':
@@ -212,9 +215,10 @@ export class HoverProvider implements vscode.HoverProvider {
      * Append quick links section
      */
     private appendQuickLinks(markdown: vscode.MarkdownString, feature: DetectedFeature, details: WebFeatureDetails | null): void {
-        markdown.appendMarkdown(`## 🔗 Quick Links\n\n`);
+        markdown.appendMarkdown(`#### 🔗 Quick Links\n\n`);
 
         const links: string[] = [];
+        const baseFeatureName = this.extractBaseFeatureName(feature.name);
 
         // MDN documentation
         if (details?.mdn_url) {
@@ -226,8 +230,8 @@ export class HoverProvider implements vscode.HoverProvider {
             links.push(`[📋 Specification](${details.spec_url})`);
         }
 
-        // Can I Use
-        const canIUseUrl = this.generateCanIUseUrl(feature.name);
+        // Can I Use - use base feature name
+        const canIUseUrl = this.generateCanIUseUrl(baseFeatureName);
         if (canIUseUrl) {
             links.push(`[📈 Can I Use](${canIUseUrl})`);
         }
@@ -254,7 +258,7 @@ export class HoverProvider implements vscode.HoverProvider {
             return;
         }
 
-        markdown.appendMarkdown(`## 💭 Recommendations\n\n`);
+        markdown.appendMarkdown(`#### 💭 Recommendations\n\n`);
 
         for (const recommendation of recommendations) {
             markdown.appendMarkdown(`• ${recommendation}\n`);
@@ -354,15 +358,22 @@ export class HoverProvider implements vscode.HoverProvider {
     }
 
     /**
-     * Get support icon based on version support
+     * Get browser icon based on browser name
      */
-    private getSupportIcon(version: string | boolean): string {
-        if (version === true || (typeof version === 'string' && version !== 'false')) {
-            return '✅';
-        } else if (version === false) {
-            return '❌';
-        }
-        return '❓';
+    private getBrowserIcon(browser: string): string {
+        const browserIcons: { [key: string]: string } = {
+            'chrome': '🟡', // Chrome yellow
+            'firefox': '🟠', // Firefox orange
+            'safari': '🔵', // Safari blue
+            'edge': '🟢', // Edge green
+            'ie': '🔷', // IE blue diamond
+            'opera': '🔴', // Opera red
+            'chrome_android': '🟡',
+            'firefox_android': '🟠',
+            'safari_ios': '🔵',
+            'samsung_android': '🟣'
+        };
+        return browserIcons[browser.toLowerCase()] || '⚪';
     }
 
     /**
@@ -375,7 +386,7 @@ export class HoverProvider implements vscode.HoverProvider {
             case 'newly_available':
                 return '⚠️';
             case 'limited_availability':
-                return '🚫';
+                return '⚠️'; // Use warning icon instead of prohibited
             default:
                 return '❓';
         }
@@ -389,9 +400,9 @@ export class HoverProvider implements vscode.HoverProvider {
             case 'widely_available':
                 return '#22c55e';
             case 'newly_available':
-                return '#f59e0b';
+                return '#eab308'; // Yellow for warnings
             case 'limited_availability':
-                return '#ef4444';
+                return '#eab308'; // Yellow for limited support
             default:
                 return '#6b7280';
         }
@@ -496,6 +507,15 @@ export class HoverProvider implements vscode.HoverProvider {
             size: this.hoverCache.size,
             timeout: this.cacheTimeout
         };
+    }
+
+    /**
+     * Extract base feature name from complex feature names
+     */
+    private extractBaseFeatureName(featureName: string): string {
+        // Remove specific values and keep only the base property/API name
+        // Examples: 'transform:-sin45deg' -> 'transform', 'grid-template-columns: subgrid' -> 'grid-template-columns'
+        return featureName.split(':')[0].trim();
     }
 
     /**

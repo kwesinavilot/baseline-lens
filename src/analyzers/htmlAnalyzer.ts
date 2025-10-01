@@ -82,7 +82,12 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
             if (node.nodeName && node.nodeName !== '#text' && node.nodeName !== '#document') {
                 const elementName = node.nodeName.toLowerCase();
                 const bcdKey = this.compatibilityService.mapHTMLElementToBCD(elementName);
-                const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                let baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                
+                // Try BCD lookup if web-features lookup fails
+                if (!baselineStatus) {
+                    baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                }
                 
                 if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                     const location = (node as Element).sourceCodeLocation;
@@ -119,8 +124,13 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                 
                 element.attrs.forEach(attr => {
                     const attrName = attr.name.toLowerCase();
-                    const bcdKey = `html.global_attributes.${attrName}`;
-                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                    const bcdKey = this.compatibilityService.mapHTMLElementToBCD(element.nodeName.toLowerCase(), attrName);
+                    let baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                    
+                    // Try BCD lookup if web-features lookup fails
+                    if (!baselineStatus) {
+                        baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                    }
                     
                     if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const location = element.sourceCodeLocation;
@@ -161,7 +171,12 @@ export class HTMLAnalyzer extends AbstractBaseAnalyzer {
                 if (typeAttr) {
                     const inputType = typeAttr.value.toLowerCase();
                     const bcdKey = `html.elements.input.type_${inputType}`;
-                    const baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                    let baselineStatus = this.compatibilityService.getFeatureStatus(bcdKey);
+                    
+                    // Try BCD lookup if web-features lookup fails
+                    if (!baselineStatus) {
+                        baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                    }
                     
                     if (baselineStatus && this.shouldAnalyzeFeature(bcdKey)) {
                         const location = element.sourceCodeLocation;

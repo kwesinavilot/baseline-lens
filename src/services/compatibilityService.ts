@@ -35,7 +35,7 @@ export class CompatibilityDataService {
     /**
      * Get BCD data by key path
      */
-    private getBCDData(bcdKey: string): any {
+    getBCDData(bcdKey: string): any {
         const parts = bcdKey.split('.');
         let current: any = bcd;
         
@@ -61,30 +61,38 @@ export class CompatibilityDataService {
             };
         }
 
-        // Simple heuristic: if supported in Chrome, Firefox, Safari, and Edge, it's widely available
         const support = bcdData.support;
         const majorBrowsers = ['chrome', 'firefox', 'safari', 'edge'];
         
-        let supportedCount = 0;
+        let recentVersionCount = 0;
         const supportData: any = {};
+        const currentYear = new Date().getFullYear();
         
         for (const browser of majorBrowsers) {
             if (support[browser]) {
                 const browserSupport = Array.isArray(support[browser]) ? support[browser][0] : support[browser];
                 if (browserSupport.version_added && browserSupport.version_added !== false) {
-                    supportedCount++;
                     supportData[browser] = { version_added: browserSupport.version_added };
+                    
+                    // Check if it's a recent version (last 3 years for modern features)
+                    const version = parseInt(browserSupport.version_added);
+                    if (browser === 'chrome' && version >= 88) recentVersionCount++; // Chrome 88+ (2021+)
+                    else if (browser === 'firefox' && version >= 85) recentVersionCount++; // Firefox 85+ (2021+)
+                    else if (browser === 'safari' && version >= 14) recentVersionCount++; // Safari 14+ (2020+)
+                    else if (browser === 'edge' && version >= 88) recentVersionCount++; // Edge 88+ (2021+)
                 }
             }
         }
 
         let status: 'widely_available' | 'newly_available' | 'limited_availability';
-        if (supportedCount >= 4) {
-            status = 'widely_available';
-        } else if (supportedCount >= 2) {
-            status = 'newly_available';
+        const totalSupported = Object.keys(supportData).length;
+        
+        if (totalSupported >= 4 && recentVersionCount === 0) {
+            status = 'widely_available'; // Old, stable features
+        } else if (totalSupported >= 3 && recentVersionCount <= 2) {
+            status = 'newly_available'; // Moderately new features
         } else {
-            status = 'limited_availability';
+            status = 'limited_availability'; // Very new or limited features
         }
 
         return {
@@ -201,21 +209,18 @@ export class CompatibilityDataService {
      * Map feature name to BCD key for CSS properties
      */
     mapCSSPropertyToBCD(property: string, value?: string): string {
-        // Always use css.properties.{property} format
-        const baseKey = `css.properties.${property.replace(/-/g, '_')}`;
+        const baseKey = `css.properties.${property}`;
         
-        // Add value if it's a named value (not generic like colors, numbers)
-        if (value && this.isNamedValue(value)) {
-            return `${baseKey}.${value.replace(/-/g, '_')}`;
+        // Try property with specific value first if provided
+        if (value) {
+            const valueKey = `${baseKey}.${value.replace(/-/g, '_')}`;
+            // Check if this specific value exists in BCD
+            if (this.getBCDData(valueKey)) {
+                return valueKey;
+            }
         }
         
         return baseKey;
-    }
-
-    private isNamedValue(value: string): boolean {
-        // Only include named values, not generic ones
-        const namedValues = ['grid', 'flex', 'block', 'inline', 'auto-phrase', 'subgrid'];
-        return namedValues.includes(value);
     }
 
     getBCDStatus(bcdKey: string): BaselineStatus | null {
@@ -228,16 +233,14 @@ export class CompatibilityDataService {
         }
 
         try {
-            console.log(`Looking up BCD key: ${bcdKey}`);
             const bcdData = this.getBCDData(bcdKey);
             if (bcdData) {
                 const baselineStatus = this.convertBCDToBaselineStatus(bcdData);
                 this.bcdCache.set(bcdKey, baselineStatus);
-                console.log(`BCD key '${bcdKey}' -> status: ${baselineStatus.status}`);
                 return baselineStatus;
             }
         } catch (error) {
-            console.log(`BCD lookup failed for ${bcdKey}:`, error);
+            // Silently fail for non-existent features
         }
 
         return null;
@@ -267,15 +270,22 @@ export class CompatibilityDataService {
      * Map feature name to BCD key for JavaScript APIs
      */
     mapJSAPIToBCD(apiName: string): string {
-        const apiMappings: { [key: string]: string } = {
-            'fetch': 'api.fetch',
-            'IntersectionObserver': 'api.IntersectionObserver',
-            'ResizeObserver': 'api.ResizeObserver',
-            'Promise': 'javascript.builtins.Promise',
-            'Map': 'javascript.builtins.Map',
-            'Set': 'javascript.builtins.Set'
-        };
-        return apiMappings[apiName] || `api.${apiName}`;
+        // Try different possible BCD paths and return the first that exists
+        const possibleKeys = [
+            `api.${apiName}`,
+            `javascript.builtins.${apiName}`,
+            `api.Window.${apiName}`,
+            `api.${apiName}.${apiName}` // For cases like fetch.fetch
+        ];
+        
+        for (const key of possibleKeys) {
+            if (this.getBCDData(key)) {
+                return key;
+            }
+        }
+        
+        // Default to API namespace
+        return `api.${apiName}`;
     }
 
     /**
@@ -283,7 +293,26 @@ export class CompatibilityDataService {
      */
     mapHTMLElementToBCD(element: string, attribute?: string): string {
         const baseKey = `html.elements.${element}`;
-        return attribute ? `${baseKey}.${attribute}` : baseKey;
+        
+        if (attribute) {
+            // Try different possible paths for the attribute
+            const possibleKeys = [
+                `${baseKey}.${attribute}`, // Element-specific attribute
+                `html.global_attributes.${attribute}`, // Global attribute
+                `${baseKey}.${attribute.replace(/-/g, '_')}` // With underscores
+            ];
+            
+            for (const key of possibleKeys) {
+                if (this.getBCDData(key)) {
+                    return key;
+                }
+            }
+            
+            // Default to element-specific
+            return `${baseKey}.${attribute}`;
+        }
+        
+        return baseKey;
     }
 
     // Utility methods for cache management
