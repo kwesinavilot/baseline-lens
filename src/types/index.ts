@@ -53,6 +53,7 @@ export interface ExtensionConfig {
     enableTeamConfig: boolean;
     showEducationalHints: boolean;
     autoRefreshOnSave: boolean;
+    showDiagnostics: boolean;
 }
 
 export interface TeamConfig {

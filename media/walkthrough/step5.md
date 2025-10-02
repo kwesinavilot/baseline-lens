@@ -1,44 +1,68 @@
 # Customizing Baseline Lens
 
-Configure Baseline Lens to match your project's specific browser support requirements and team preferences.
+Tailor Baseline Lens to your project's browser support needs and team workflow.
 
-## Key Settings:
+## Essential Settings Overview
 
-### Browser Support
-- **`baseline-lens.supportThreshold`**: Minimum browser support percentage (default: 95%)
-- **`baseline-lens.targetBrowsers`**: Specific browsers and versions to target
-- **`baseline-lens.includePrerelease`**: Whether to consider pre-release browser versions
+### 🎯 Browser Support Control
+- **Support Threshold** (90%): Minimum browser support to consider features "safe"
+- **Custom Browser Matrix**: Target specific browsers like `["chrome >= 90", "safari >= 14"]`
+- **Baseline Status Mapping**: Control warning levels for each compatibility status
 
-### Diagnostic Behavior  
-- **`baseline-lens.diagnosticSeverity`**: How to report issues (error/warning/info)
-- **`baseline-lens.showInlineIndicators`**: Toggle visual indicators in code
-- **`baseline-lens.enableHoverInfo`**: Show detailed info on hover
+### 🔧 Analysis Behavior
+- **Show Inline Indicators** (❌): Display ✅⚠️🚫 icons in your code
+- **Show Diagnostics** (✅): Show warnings/errors in Problems panel
+- **Diagnostic Severity** (Warning): How compatibility issues appear in Problems panel
+- **Enabled Analyzers**: Turn CSS, JavaScript, or HTML analysis on/off
 
-### File Handling
-- **`baseline-lens.excludePatterns`**: Skip files matching these patterns
-- **`baseline-lens.enabledLanguages`**: Which file types to analyze
-- **`baseline-lens.maxFileSize`**: Skip files larger than this size
+### 📁 File Processing
+- **Enabled File Types**: Which languages to analyze (CSS, JS, HTML, Vue, Svelte)
+- **Exclude Patterns**: Skip files like `**/node_modules/**`, `**/dist/**`
+- **Max File Size** (10MB): Skip large files to maintain performance
 
-### Team Configuration
-- **Workspace settings**: Share configuration across your team
-- **`.baseline-lens.json`**: Project-specific configuration file
-- **CI/CD integration**: Export settings for build pipelines
+## Try It: Customize Your Experience
 
-## Configuration Levels:
+### Step 1: Open Settings
+Use `Ctrl+Shift+B S` (or `Cmd+Shift+B S` on Mac) to open Baseline Lens settings
 
-### User Settings (Global)
-Apply to all projects on your machine
+### Step 2: Adjust Support Threshold
+1. Find **"Baseline-lens: Support Threshold"**
+2. Change from `90` to `95` for stricter compatibility
+3. Or set to `85` for more modern feature adoption
 
-### Workspace Settings  
-Apply only to the current project, shared with team
+### Step 3: Control Visual Feedback
+1. Find **"Baseline-lens: Show Inline Indicators"**
+2. Check to enable ✅⚠️🚫 icons in your code
+3. Find **"Baseline-lens: Show Diagnostics"**
+4. Uncheck to hide warnings in Problems panel (quiet mode)
 
-### Project Configuration
-Use `.baseline-lens.json` for version-controlled settings
+### Step 4: Customize Diagnostic Severity
+1. Find **"Baseline-lens: Diagnostic Severity"**
+2. Change from "warning" to "error" for stricter enforcement
+3. Or set to "info" for gentler notifications
 
-## Quick Setup:
+### Quick Toggle Commands
+- Use **"Toggle Inline Indicators"** command for instant on/off
+- Use **"Toggle Diagnostics"** command to enable/disable Problems panel warnings
 
-1. **Conservative**: Set threshold to 98% for maximum compatibility
-2. **Balanced**: Use default 95% threshold for modern web development  
-3. **Progressive**: Set to 90% to adopt newer features faster
+## Team Configuration
 
-**Tip**: Start with defaults and adjust based on your project's browser support requirements!
+### Share Settings with Your Team
+1. Use **"Export Team Configuration"** command
+2. Save `.baseline-lens.json` to your project root
+3. Commit to version control for team consistency
+
+### Project-Specific Settings
+```json
+{
+  "supportThreshold": 95,
+  "diagnosticSeverity": "warning",
+  "customBrowserMatrix": [
+    "chrome >= 90",
+    "firefox >= 88",
+    "safari >= 14"
+  ]
+}
+```
+
+**💡 Pro Tip**: Start with defaults, then adjust based on your project's browser analytics and user base!

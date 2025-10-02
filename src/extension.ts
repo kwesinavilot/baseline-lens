@@ -166,7 +166,7 @@ export async function activate(context: vscode.ExtensionContext) {
             enableErrorLogging: true
         });
         
-        uiService = new UIService(compatibilityService);
+        uiService = new UIService(compatibilityService, configurationService);
         reportGenerator = new ReportGenerator(analysisEngine, compatibilityService);
         
         // Initialize file watcher service for real-time analysis
@@ -192,6 +192,13 @@ export async function activate(context: vscode.ExtensionContext) {
             await configurationService.updateConfiguration('showInlineIndicators', newValue);
             vscode.window.showInformationMessage(`Inline indicators ${newValue ? 'enabled' : 'disabled'}`);
         });
+        
+        const toggleDiagnosticsSuccess = await commandManager.registerCommand('baseline-lens.toggleDiagnostics', async () => {
+            const config = configurationService.getConfiguration();
+            const newValue = !config.showDiagnostics;
+            await configurationService.updateConfiguration('showDiagnostics', newValue);
+            vscode.window.showInformationMessage(`Diagnostics ${newValue ? 'enabled' : 'disabled'}`);
+        });
 
         // Log command registration results
         if (!generateReportSuccess) {
@@ -202,6 +209,9 @@ export async function activate(context: vscode.ExtensionContext) {
         }
         if (!toggleIndicatorsSuccess) {
             console.warn('Failed to register baseline-lens.toggleInlineIndicators command');
+        }
+        if (!toggleDiagnosticsSuccess) {
+            console.warn('Failed to register baseline-lens.toggleDiagnostics command');
         }
 
         // Configuration management commands
@@ -326,6 +336,14 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         });
 
+        const openSettingsSuccess = await commandManager.registerCommand('baseline-lens.openSettings', async () => {
+            try {
+                await vscode.commands.executeCommand('workbench.action.openSettings', 'baseline-lens');
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to open settings: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
         // Internal command for walkthrough tracking
         const showHoverSuccess = await commandManager.registerCommand('baseline-lens.showHover', () => {
             // This command is used internally to track when hover is shown for walkthrough completion
@@ -358,6 +376,9 @@ export async function activate(context: vscode.ExtensionContext) {
         }
         if (!showErrorStatsSuccess) {
             console.warn('Failed to register baseline-lens.showErrorStats command');
+        }
+        if (!openSettingsSuccess) {
+            console.warn('Failed to register baseline-lens.openSettings command');
         }
 
         context.subscriptions.push(

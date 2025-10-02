@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { DetectedFeature, AnalysisResult, BaselineStatus } from '../types';
 import { HoverProvider } from './hoverProvider';
 import { CompatibilityDataService } from './compatibilityService';
+import { ConfigurationService } from './configurationService';
 import { SuggestionEngine } from './suggestionEngine';
 import { BaselineLensCodeActionProvider, CodeActionCommands } from './codeActionProvider';
 
@@ -14,17 +15,21 @@ export class UIService {
     private suggestionEngine: SuggestionEngine;
     private codeActionProvider: BaselineLensCodeActionProvider;
     private codeActionProviderDisposable: vscode.Disposable | undefined;
+    private configurationService: ConfigurationService;
+    private configChangeDisposable: vscode.Disposable | undefined;
 
-    constructor(compatibilityService: CompatibilityDataService) {
+    constructor(compatibilityService: CompatibilityDataService, configurationService?: ConfigurationService) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('baseline-lens');
         this.decorationTypes = new Map();
         this.activeDecorations = new Map();
         this.hoverProvider = new HoverProvider(compatibilityService);
         this.suggestionEngine = new SuggestionEngine(compatibilityService);
         this.codeActionProvider = new BaselineLensCodeActionProvider(this.suggestionEngine);
+        this.configurationService = configurationService || new ConfigurationService();
         this.initializeDecorationTypes();
         this.registerHoverProvider();
         this.registerCodeActionProvider();
+        this.setupConfigurationListener();
     }
 
     private initializeDecorationTypes(): void {
@@ -282,8 +287,15 @@ export class UIService {
     }
 
     updateDiagnostics(document: vscode.TextDocument, features: DetectedFeature[]): void {
-        const diagnostics = this.createDiagnosticsFromFeatures(features);
-        this.diagnosticCollection.set(document.uri, diagnostics);
+        // Check if diagnostics are enabled
+        const config = this.configurationService.getConfiguration();
+        if (!config.showDiagnostics) {
+            // Clear diagnostics if disabled
+            this.diagnosticCollection.set(document.uri, []);
+        } else {
+            const diagnostics = this.createDiagnosticsFromFeatures(features);
+            this.diagnosticCollection.set(document.uri, diagnostics);
+        }
         
         // Update hover provider with new features
         this.hoverProvider.updateFeatures(document, features);
@@ -295,6 +307,14 @@ export class UIService {
     updateDecorations(document: vscode.TextDocument, features: DetectedFeature[]): void {
         const editor = vscode.window.activeTextEditor;
         if (!editor || editor.document.uri.toString() !== document.uri.toString()) {
+            return;
+        }
+
+        // Check if inline indicators are enabled
+        const config = this.configurationService.getConfiguration();
+        if (!config.showInlineIndicators) {
+            // Clear decorations if indicators are disabled
+            this.clearDecorations(document);
             return;
         }
 
@@ -356,6 +376,25 @@ export class UIService {
         );
     }
 
+    private setupConfigurationListener(): void {
+        this.configChangeDisposable = this.configurationService.onConfigChanged(() => {
+            this.refreshAllDecorations();
+        });
+    }
+
+    /**
+     * Refresh decorations for all visible editors
+     */
+    public refreshAllDecorations(): void {
+        vscode.window.visibleTextEditors.forEach(editor => {
+            const features = this.hoverProvider.getFeatures(editor.document);
+            if (features && features.length > 0) {
+                this.updateDecorations(editor.document, features);
+                this.updateDiagnostics(editor.document, features);
+            }
+        });
+    }
+
     dispose(): void {
         this.diagnosticCollection.dispose();
         
@@ -375,6 +414,11 @@ export class UIService {
         // Dispose code action provider
         if (this.codeActionProviderDisposable) {
             this.codeActionProviderDisposable.dispose();
+        }
+        
+        // Dispose configuration listener
+        if (this.configChangeDisposable) {
+            this.configChangeDisposable.dispose();
         }
     }
 }

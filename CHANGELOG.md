@@ -5,6 +5,54 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2025-01-03
+
+### Added
+- **Keyboard Shortcuts**
+  - `Ctrl+Shift+B R` / `Cmd+Shift+B R` - Generate Baseline Report
+  - `Ctrl+Shift+B A` / `Cmd+Shift+B A` - Refresh Analysis
+  - `Ctrl+Shift+B I` / `Cmd+Shift+B I` - Toggle Inline Indicators
+  - `Ctrl+Shift+B S` / `Cmd+Shift+B S` - Open Baseline Lens Settings
+
+- **Settings Access Command**
+  - New "Open Baseline Lens Settings" command in Command Palette
+  - Direct access to extension configuration from VS Code settings
+
+- **Toggle Commands**
+  - "Toggle Diagnostics" command to show/hide warnings in Problems panel
+  - Inline indicators now disabled by default for cleaner editor experience
+  - New `showDiagnostics` setting for quiet mode operation
+
+- **Comprehensive Test Files**
+  - Modern CSS test file with container queries, subgrid, :has() selector, and color functions
+  - Vue 3 component with Composition API and modern web features
+  - Svelte component demonstrating framework-specific syntax with modern APIs
+  - Mixed compatibility levels for thorough extension testing
+
+### Changed
+- **Default Settings**
+  - Inline indicators (✅ ⚠️ 🚫) now disabled by default
+  - Users can enable via toggle command or settings
+  - Cleaner editor experience out of the box
+
+### Fixed
+- **Report Generation Accuracy**
+  - Fixed "Total Features: 0" issue in compatibility reports
+  - Corrected percentage calculations for feature status breakdown
+  - Added transparency note about incomplete compatibility data for some features
+  - Improved feature processing to include all detected features regardless of web-features database availability
+
+- **Toggle Inline Indicators**
+  - Fixed command not working due to missing configuration listener
+  - Added immediate visual feedback when toggling indicators
+  - Proper cleanup of decorations when disabled
+
+- **Vue and Svelte Framework Support**
+  - Fixed analysis not working in Vue and Svelte files
+  - Properly extracts and analyzes `<style>` and `<script>` sections
+  - Correct line number mapping for detected features
+  - Added React/JSX/TSX file types to default configuration
+
 ## [0.10.0] - 2025-01-03
 
 ### Added

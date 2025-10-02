@@ -32,6 +32,13 @@ export class HoverProvider implements vscode.HoverProvider {
     }
 
     /**
+     * Get features for a document
+     */
+    getFeatures(document: vscode.TextDocument): DetectedFeature[] | null {
+        return this.featureMap.get(document.uri.toString()) || null;
+    }
+
+    /**
      * Provide hover information for detected features
      */
     provideHover(

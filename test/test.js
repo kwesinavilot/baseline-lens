@@ -9,7 +9,7 @@ const widelyAvailable = {
     message: `This is a template literal`,
     
     // Destructuring
-    [first, second] = [1, 2],
+    // [first, second] = [1, 2],
     
     // Spread operator
     numbers: [1, 2, 3],

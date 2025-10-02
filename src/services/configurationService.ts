@@ -323,6 +323,7 @@ export class ConfigurationService {
         config.enableTeamConfig = vsCodeConfig.get('enableTeamConfig', defaultConfig.enableTeamConfig);
         config.showEducationalHints = vsCodeConfig.get('showEducationalHints', defaultConfig.showEducationalHints);
         config.autoRefreshOnSave = vsCodeConfig.get('autoRefreshOnSave', defaultConfig.autoRefreshOnSave);
+        config.showDiagnostics = vsCodeConfig.get('showDiagnostics', defaultConfig.showDiagnostics);
 
         // Apply team configuration overrides
         if (teamConfig) {
@@ -354,9 +355,10 @@ export class ConfigurationService {
 
     private getDefaultConfiguration(): ExtensionConfig {
         return {
-            enabledFileTypes: ['css', 'scss', 'less', 'javascript', 'typescript', 'html', 'vue', 'svelte'],
+            enabledFileTypes: ['css', 'scss', 'less', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'html', 'vue', 'svelte'],
             supportThreshold: 90,
-            showInlineIndicators: true,
+            showInlineIndicators: false,
+            showDiagnostics: true,
             diagnosticSeverity: 'warning',
             customBrowserMatrix: [],
             excludePatterns: ['**/node_modules/**', '**/dist/**', '**/build/**'],

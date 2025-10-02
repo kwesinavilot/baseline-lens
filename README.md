@@ -44,9 +44,9 @@ Stop context-switching to MDN and CanIUse. Baseline Lens brings [Baseline](https
 
 1. **Open any web project** with CSS, JavaScript, or HTML files
 2. **Start coding** - Baseline Lens automatically activates and begins analysis
-3. **Look for indicators** - ✅ ⚠ 🚫 symbols appear next to web features
+3. **Check Problems panel** - View compatibility issues (enabled by default)
 4. **Hover for details** - Get browser support breakdown and MDN links
-5. **Check Problems panel** - View all compatibility issues in one place
+5. **Enable indicators** - Use `Ctrl+Shift+B I` to show ✅ ⚠ 🚫 symbols in editor
 
 ## 📖 Usage
 
@@ -119,9 +119,10 @@ Access settings via File → Preferences → Settings → Extensions → Baselin
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `enabledFileTypes` | `["css", "scss", "javascript", "html", "vue"]` | File types to analyze |
+| `enabledFileTypes` | `["css", "scss", "javascript", "typescript", "javascriptreact", "typescriptreact", "html", "vue", "svelte"]` | File types to analyze |
 | `supportThreshold` | `90` | Minimum support percentage for "safe" features |
-| `showInlineIndicators` | `true` | Show visual indicators in editor |
+| `showInlineIndicators` | `false` | Show visual indicators in editor |
+| `showDiagnostics` | `true` | Show warnings/errors in Problems panel |
 | `diagnosticSeverity` | `"warning"` | Severity level for compatibility issues |
 | `excludePatterns` | `["**/node_modules/**"]` | Files/folders to exclude from analysis |
 
@@ -146,14 +147,16 @@ Create `.baseline-lens.json` in your project root:
 }
 ```
 
-## 🔧 Commands
+## 🔧 Commands & Shortcuts
 
-| Command | Description |
-|---------|-------------|
-| `Baseline Lens: Generate Report` | Create project-wide compatibility report |
-| `Baseline Lens: Refresh Analysis` | Re-analyze current file |
-| `Baseline Lens: Toggle Inline Indicators` | Show/hide visual indicators |
-| `Baseline Lens: Export Team Configuration` | Export current settings for team sharing |
+| Command | Shortcut | Description |
+|---------|----------|-------------|
+| `Baseline Lens: Generate Report` | `Ctrl+Shift+B R` | Create project-wide compatibility report |
+| `Baseline Lens: Refresh Analysis` | `Ctrl+Shift+B A` | Re-analyze current file |
+| `Baseline Lens: Toggle Inline Indicators` | `Ctrl+Shift+B I` | Show/hide visual indicators |
+| `Baseline Lens: Toggle Diagnostics` | - | Show/hide warnings in Problems panel |
+| `Baseline Lens: Open Settings` | `Ctrl+Shift+B S` | Open extension settings |
+| `Baseline Lens: Export Team Configuration` | - | Export current settings for team sharing |
 
 ## 🌐 Supported Technologies
 
@@ -161,7 +164,7 @@ Create `.baseline-lens.json` in your project root:
 - **CSS**: Pure CSS, SCSS, Less, CSS-in-JS, styled-components
 - **JavaScript**: ES5+, TypeScript, JSX, Node.js APIs
 - **HTML**: HTML5, Web Components, framework templates
-- **Frameworks**: React, Vue, Angular, Svelte
+- **Frameworks**: React (.jsx/.tsx), Vue (.vue), Svelte (.svelte), Angular
 
 ### Web Features Detected
 - **CSS**: Properties, selectors, at-rules, functions, pseudo-classes

@@ -2,7 +2,7 @@
   "name": "baseline-lens",
   "displayName": "Baseline Lens",
   "description": "Real-time web feature compatibility checking with Baseline data directly in VS Code",
-  "version": "0.7.1",
+  "version": "0.11.0",
   "publisher": "kwesinavilot",
   "author": {
     "name": "Andrews Kwesi Ankomahene",
@@ -82,6 +82,11 @@
         "category": "Baseline Lens"
       },
       {
+        "command": "baseline-lens.toggleDiagnostics",
+        "title": "Toggle Diagnostics",
+        "category": "Baseline Lens"
+      },
+      {
         "command": "baseline-lens.showPolyfillInfo",
         "title": "Show Polyfill Information"
       },
@@ -118,6 +123,11 @@
         "command": "baseline-lens.openCommunity",
         "title": "Join Community",
         "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.openSettings",
+        "title": "Open Baseline Lens Settings",
+        "category": "Baseline Lens"
       }
     ],
     "menus": {
@@ -130,6 +140,9 @@
         },
         {
           "command": "baseline-lens.toggleInlineIndicators"
+        },
+        {
+          "command": "baseline-lens.toggleDiagnostics"
         },
         {
           "command": "baseline-lens.exportTeamConfig"
@@ -148,6 +161,9 @@
         },
         {
           "command": "baseline-lens.openCommunity"
+        },
+        {
+          "command": "baseline-lens.openSettings"
         }
       ]
     },
@@ -162,6 +178,8 @@
             "less",
             "javascript",
             "typescript",
+            "javascriptreact",
+            "typescriptreact",
             "html",
             "vue",
             "svelte"
@@ -180,8 +198,13 @@
         },
         "baseline-lens.showInlineIndicators": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Show inline compatibility indicators in the editor"
+        },
+        "baseline-lens.showDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show compatibility warnings and errors in Problems panel"
         },
         "baseline-lens.diagnosticSeverity": {
           "type": "string",
@@ -300,6 +323,31 @@
         }
       }
     },
+    "keybindings": [
+      {
+        "command": "baseline-lens.generateReport",
+        "key": "ctrl+shift+b r",
+        "mac": "cmd+shift+b r",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "baseline-lens.refreshAnalysis",
+        "key": "ctrl+shift+b a",
+        "mac": "cmd+shift+b a",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "baseline-lens.toggleInlineIndicators",
+        "key": "ctrl+shift+b i",
+        "mac": "cmd+shift+b i",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "baseline-lens.openSettings",
+        "key": "ctrl+shift+b s",
+        "mac": "cmd+shift+b s"
+      }
+    ],
     "walkthroughs": [
       {
         "id": "baseline-lens.getting-started",
