@@ -344,6 +344,87 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         });
 
+        const generateCIConfigSuccess = await commandManager.registerCommand('baseline-lens.generateCIConfig', async () => {
+            try {
+                if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+                    vscode.window.showErrorMessage('No workspace folder found. Please open a project to generate CI/CD configuration.');
+                    return;
+                }
+
+                const platform = await vscode.window.showQuickPick([
+                    { label: 'GitHub Actions', value: 'github', description: 'Generate .github/workflows/baseline-lens.yml' },
+                    { label: 'GitLab CI', value: 'gitlab', description: 'Generate .gitlab-ci.yml configuration' },
+                    { label: 'Azure DevOps', value: 'azure', description: 'Generate azure-pipelines.yml' },
+                    { label: 'Jenkins', value: 'jenkins', description: 'Generate Jenkinsfile' }
+                ], { placeHolder: 'Select CI/CD platform' });
+
+                if (!platform) return;
+
+                const failOn = await vscode.window.showQuickPick([
+                    { label: 'High Risk Only', value: 'high', description: 'Fail only on limited-availability features' },
+                    { label: 'Medium Risk', value: 'medium', description: 'Fail on newly-available and limited features' },
+                    { label: 'Low Risk', value: 'low', description: 'Fail on any compatibility issues' }
+                ], { placeHolder: 'Select failure threshold' });
+
+                if (!failOn) return;
+
+                const thresholdInput = await vscode.window.showInputBox({
+                    prompt: 'Enter support threshold percentage (0-100)',
+                    value: '90',
+                    validateInput: (value) => {
+                        const num = parseInt(value);
+                        return (isNaN(num) || num < 0 || num > 100) ? 'Please enter a number between 0 and 100' : null;
+                    }
+                });
+
+                if (!thresholdInput) return;
+
+                const { CIConfigGenerator } = await import('../cli/ciConfigGenerator');
+                const { CLIConfig } = await import('../cli/cliConfig');
+                
+                const config = new CLIConfig();
+                const generator = new CIConfigGenerator(config);
+                
+                const outputDir = platform.value === 'github' ? '.github/workflows' : '.';
+                const configContent = generator.generateConfig(platform.value, {
+                    failOn: failOn.value,
+                    threshold: thresholdInput,
+                    outputPath: outputDir
+                });
+
+                const workspaceRoot = vscode.workspace.workspaceFolders[0].uri;
+                const fileName = generator.getConfigFileName(platform.value, outputDir);
+                const relativePath = fileName.replace(workspaceRoot.fsPath, '').replace(/^[\\\/]/, '');
+                const outputUri = vscode.Uri.joinPath(workspaceRoot, relativePath);
+
+                const outputDirUri = vscode.Uri.joinPath(workspaceRoot, outputDir);
+                try {
+                    await vscode.workspace.fs.createDirectory(outputDirUri);
+                } catch (error) {}
+
+                await vscode.workspace.fs.writeFile(outputUri, Buffer.from(configContent, 'utf8'));
+
+                const additionalFiles = generator.getAdditionalFiles(platform.value);
+                for (const [fileName, content] of additionalFiles) {
+                    const fileUri = vscode.Uri.joinPath(workspaceRoot, fileName);
+                    await vscode.workspace.fs.writeFile(fileUri, Buffer.from(content, 'utf8'));
+                }
+
+                const openAction = 'Open File';
+                const result = await vscode.window.showInformationMessage(
+                    `CI/CD configuration generated successfully! Created ${relativePath}`,
+                    openAction
+                );
+
+                if (result === openAction) {
+                    await vscode.window.showTextDocument(outputUri);
+                }
+
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to generate CI/CD configuration: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+
         // Internal command for walkthrough tracking
         const showHoverSuccess = await commandManager.registerCommand('baseline-lens.showHover', () => {
             // This command is used internally to track when hover is shown for walkthrough completion
@@ -379,6 +460,9 @@ export async function activate(context: vscode.ExtensionContext) {
         }
         if (!openSettingsSuccess) {
             console.warn('Failed to register baseline-lens.openSettings command');
+        }
+        if (!generateCIConfigSuccess) {
+            console.warn('Failed to register baseline-lens.generateCIConfig command');
         }
 
         context.subscriptions.push(

@@ -1,15 +1,33 @@
 {
   "supportThreshold": 90,
+  "customBrowserMatrix": [],
   "excludePatterns": [
     "**/node_modules/**",
     "**/dist/**",
-    "**/build/**"
+    "**/build/**",
+    "**/coverage/**",
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/.git/**"
   ],
-  "baselineStatusMapping": {
-    "widely_available": "info",
-    "newly_available": "warning",
-    "limited_availability": "error"
-  },
+  "includePatterns": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mjs",
+    "**/*.html",
+    "**/*.htm",
+    "**/*.vue",
+    "**/*.svelte"
+  ],
   "enabledAnalyzers": {
     "css": true,
     "javascript": true,

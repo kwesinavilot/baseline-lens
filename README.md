@@ -1,18 +1,14 @@
 # 🌐 Baseline Lens
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/baseline-lens.baseline-lens)](https://marketplace.visualstudio.com/items?itemName=baseline-lens.baseline-lens)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/baseline-lens.baseline-lens)](https://marketplace.visualstudio.com/items?itemName=baseline-lens.baseline-lens)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/baseline-lens.baseline-lens)](https://marketplace.visualstudio.com/items?itemName=baseline-lens.baseline-lens)
-
 **Real-time web feature compatibility checking with Baseline data directly in VS Code**
 
-Stop context-switching to MDN and CanIUse. Baseline Lens brings [Baseline](https://web.dev/baseline/) compatibility data directly into your development workflow, helping you make informed decisions about web feature adoption without leaving your IDE.
+Stop context-switching to MDN and CanIUse. Baseline Lens brings [Baseline](https://web.dev/baseline/) compatibility data directly into your development workflow for **CSS, JavaScript, HTML, React, Vue, and Svelte** projects, helping you make informed decisions about web feature adoption without leaving your IDE.
 
 ![Baseline Lens Demo](https://raw.githubusercontent.com/kwesinavilot/baseline-lens/main/assets/demo.gif)
 
 ## ✨ Features
 
-- **🔍 Real-time Analysis**: Detects modern web features in CSS, JavaScript, and HTML as you type
+- **🔍 Real-time Analysis**: Detects modern web features in CSS, JavaScript, HTML, React, Vue, and Svelte as you type
 - **📊 Inline Indicators**: Visual compatibility status (✅ Widely available, ⚠ Newly available, 🚫 Limited support)
 - **💡 Smart Tooltips**: Hover for detailed browser support breakdown and MDN links
 - **🚨 Diagnostics**: Integration with VS Code Problems panel for comprehensive issue tracking
@@ -42,7 +38,7 @@ Stop context-switching to MDN and CanIUse. Baseline Lens brings [Baseline](https
 
 ### First Steps
 
-1. **Open any web project** with CSS, JavaScript, or HTML files
+1. **Open any web project** with CSS, JavaScript, HTML, React, Vue, or Svelte files
 2. **Start coding** - Baseline Lens automatically activates and begins analysis
 3. **Check Problems panel** - View compatibility issues (enabled by default)
 4. **Hover for details** - Get browser support breakdown and MDN links
