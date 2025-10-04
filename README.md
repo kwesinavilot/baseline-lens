@@ -17,6 +17,32 @@ Stop context-switching to MDN and CanIUse. Baseline Lens brings [Baseline](https
 - **🎯 Smart Suggestions**: Get fallback recommendations and alternative approaches
 - **⚡ Performance Optimized**: Lightweight, local analysis with sub-100ms response times
 
+## 🚀 Supercharge with CLI Integration
+
+**Take your workflow to the next level** by combining the VS Code extension with the [Baseline Lens CLI](https://www.npmjs.com/package/baseline-lens-cli):
+
+### Extension Only
+- ✅ Real-time analysis as you type
+- ✅ Inline indicators and hover tooltips
+- ✅ Problems panel integration
+- ✅ Project reports
+
+### Extension + CLI = Supercharged! 🚀
+- ✅ **Everything above, plus:**
+- 🔗 **Git Hooks**: Automatic compatibility checking on commits
+- ⚙️ **CI/CD Setup**: Generate GitHub Actions, GitLab CI, Azure Pipelines configs
+- 🧠 **Smart Config**: Auto-detect React/Vue/Angular and generate optimal settings
+- 📊 **Project Analysis**: Comprehensive project-wide compatibility reports
+- 🔄 **Team Workflows**: Shared configuration and automated setup
+
+```bash
+# Supercharge your setup
+npm install -g baseline-lens-cli
+# Extension automatically detects CLI and unlocks enhanced features!
+```
+
+**[📖 Complete CLI Integration Guide](docs/CLI_INTEGRATION.md)**
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -201,6 +227,7 @@ npm run package
 ## 📚 Documentation
 
 - [User Guide](docs/USER_GUIDE.md) - Comprehensive usage documentation
+- [CLI Integration Guide](docs/CLI_INTEGRATION.md) - **Supercharge your workflow with CLI**
 - [Configuration Guide](docs/CONFIGURATION.md) - Detailed configuration options
 - [API Documentation](docs/API_DOCUMENTATION.md) - Extension API reference
 - [Architecture Guide](docs/ARCHITECTURE.md) - Technical implementation details

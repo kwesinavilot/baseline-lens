@@ -7,6 +7,7 @@ import { ReportGenerator } from './services/reportGenerator';
 import { ConfigurationService } from './services/configurationService';
 import { CommandManager } from './core/commandManager';
 import { CodeActionCommands } from './services/codeActionProvider';
+import { CLIIntegrationService } from './services/cliIntegrationService';
 
 let analysisEngine: AnalysisEngine;
 let compatibilityService: CompatibilityDataService;
@@ -15,6 +16,7 @@ let fileWatcherService: FileWatcherService;
 let reportGenerator: ReportGenerator;
 let configurationService: ConfigurationService;
 let commandManager: CommandManager;
+let cliIntegrationService: CLIIntegrationService;
 
 /**
  * Generate and export a baseline compatibility report
@@ -172,6 +174,10 @@ export async function activate(context: vscode.ExtensionContext) {
         // Initialize file watcher service for real-time analysis
         fileWatcherService = new FileWatcherService(analysisEngine, uiService, configurationService);
         await fileWatcherService.initialize();
+
+        // Initialize CLI integration service (optional enhancement)
+        cliIntegrationService = new CLIIntegrationService();
+        await cliIntegrationService.initialize();
 
         // Register commands and providers
         
@@ -346,83 +352,45 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const generateCIConfigSuccess = await commandManager.registerCommand('baseline-lens.generateCIConfig', async () => {
             try {
-                if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-                    vscode.window.showErrorMessage('No workspace folder found. Please open a project to generate CI/CD configuration.');
+                if (!cliIntegrationService.isAvailable()) {
+                    const installAction = 'Install CLI';
+                    const result = await vscode.window.showInformationMessage(
+                        'CI/CD configuration generation requires the Baseline Lens CLI. Would you like to install it?',
+                        installAction,
+                        'Cancel'
+                    );
+                    
+                    if (result === installAction) {
+                        await vscode.env.openExternal(vscode.Uri.parse('https://www.npmjs.com/package/baseline-lens-cli'));
+                    }
                     return;
                 }
-
-                const platform = await vscode.window.showQuickPick([
-                    { label: 'GitHub Actions', value: 'github', description: 'Generate .github/workflows/baseline-lens.yml' },
-                    { label: 'GitLab CI', value: 'gitlab', description: 'Generate .gitlab-ci.yml configuration' },
-                    { label: 'Azure DevOps', value: 'azure', description: 'Generate azure-pipelines.yml' },
-                    { label: 'Jenkins', value: 'jenkins', description: 'Generate Jenkinsfile' }
-                ], { placeHolder: 'Select CI/CD platform' });
-
-                if (!platform) return;
-
-                const failOn = await vscode.window.showQuickPick([
-                    { label: 'High Risk Only', value: 'high', description: 'Fail only on limited-availability features' },
-                    { label: 'Medium Risk', value: 'medium', description: 'Fail on newly-available and limited features' },
-                    { label: 'Low Risk', value: 'low', description: 'Fail on any compatibility issues' }
-                ], { placeHolder: 'Select failure threshold' });
-
-                if (!failOn) return;
-
-                const thresholdInput = await vscode.window.showInputBox({
-                    prompt: 'Enter support threshold percentage (0-100)',
-                    value: '90',
-                    validateInput: (value) => {
-                        const num = parseInt(value);
-                        return (isNaN(num) || num < 0 || num > 100) ? 'Please enter a number between 0 and 100' : null;
-                    }
-                });
-
-                if (!thresholdInput) return;
-
-                const { CIConfigGenerator } = await import('../cli/ciConfigGenerator');
-                const { CLIConfig } = await import('../cli/cliConfig');
                 
-                const config = new CLIConfig();
-                const generator = new CIConfigGenerator(config);
-                
-                const outputDir = platform.value === 'github' ? '.github/workflows' : '.';
-                const configContent = generator.generateConfig(platform.value, {
-                    failOn: failOn.value,
-                    threshold: thresholdInput,
-                    outputPath: outputDir
-                });
-
-                const workspaceRoot = vscode.workspace.workspaceFolders[0].uri;
-                const fileName = generator.getConfigFileName(platform.value, outputDir);
-                const relativePath = fileName.replace(workspaceRoot.fsPath, '').replace(/^[\\\/]/, '');
-                const outputUri = vscode.Uri.joinPath(workspaceRoot, relativePath);
-
-                const outputDirUri = vscode.Uri.joinPath(workspaceRoot, outputDir);
-                try {
-                    await vscode.workspace.fs.createDirectory(outputDirUri);
-                } catch (error) {}
-
-                await vscode.workspace.fs.writeFile(outputUri, Buffer.from(configContent, 'utf8'));
-
-                const additionalFiles = generator.getAdditionalFiles(platform.value);
-                for (const [fileName, content] of additionalFiles) {
-                    const fileUri = vscode.Uri.joinPath(workspaceRoot, fileName);
-                    await vscode.workspace.fs.writeFile(fileUri, Buffer.from(content, 'utf8'));
-                }
-
-                const openAction = 'Open File';
-                const result = await vscode.window.showInformationMessage(
-                    `CI/CD configuration generated successfully! Created ${relativePath}`,
-                    openAction
-                );
-
-                if (result === openAction) {
-                    await vscode.window.showTextDocument(outputUri);
-                }
-
+                await cliIntegrationService.setupCICD();
             } catch (error) {
                 vscode.window.showErrorMessage(`Failed to generate CI/CD configuration: ${error instanceof Error ? error.message : String(error)}`);
             }
+        });
+
+        // CLI integration commands (only available if CLI is detected)
+        const showCLICommandsSuccess = await commandManager.registerCommand('baseline-lens.showCLICommands', async () => {
+            await cliIntegrationService.showCLICommands();
+        });
+
+        const analyzeProjectSuccess = await commandManager.registerCommand('baseline-lens.analyzeProject', async () => {
+            await cliIntegrationService.showProjectAnalysis();
+        });
+
+        const setupGitHooksSuccess = await commandManager.registerCommand('baseline-lens.setupGitHooks', async () => {
+            await cliIntegrationService.setupGitHooks();
+        });
+
+        const setupCICDSuccess = await commandManager.registerCommand('baseline-lens.setupCICD', async () => {
+            await cliIntegrationService.setupCICD();
+        });
+
+        const generateSmartConfigSuccess = await commandManager.registerCommand('baseline-lens.generateSmartConfig', async () => {
+            await cliIntegrationService.generateSmartConfig();
         });
 
         // Internal command for walkthrough tracking
@@ -470,7 +438,8 @@ export async function activate(context: vscode.ExtensionContext) {
             fileWatcherService,
             commandManager, // CommandManager handles all command disposables
             uiService,
-            analysisEngine
+            analysisEngine,
+            cliIntegrationService
         );
         
         // Check if any critical commands failed to register
@@ -570,7 +539,8 @@ export function deactivate() {
         { name: 'reportGenerator', service: reportGenerator, hasDispose: false },
         { name: 'compatibilityService', service: compatibilityService, hasDispose: false },
         { name: 'configurationService', service: configurationService, hasDispose: true },
-        { name: 'commandManager', service: commandManager, hasDispose: true }
+        { name: 'commandManager', service: commandManager, hasDispose: true },
+        { name: 'cliIntegrationService', service: cliIntegrationService, hasDispose: true }
     ];
     
     const disposalResults: { name: string; success: boolean; error?: Error }[] = [];
@@ -618,6 +588,7 @@ export function deactivate() {
         reportGenerator = undefined as any;
         configurationService = undefined as any;
         commandManager = undefined as any;
+        cliIntegrationService = undefined as any;
         
         console.log('Cleared all global service references');
     } catch (error) {

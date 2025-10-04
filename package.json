@@ -2,7 +2,7 @@
   "name": "baseline-lens",
   "displayName": "Baseline Lens",
   "description": "Real-time web feature compatibility checking with Baseline data directly in VS Code",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "publisher": "kwesinavilot",
   "author": {
     "name": "Andrews Kwesi Ankomahene",
@@ -133,6 +133,31 @@
         "command": "baseline-lens.generateCIConfig",
         "title": "Generate CI/CD Configuration",
         "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.showCLICommands",
+        "title": "CLI Commands",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.analyzeProject",
+        "title": "Analyze Project (CLI)",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.setupGitHooks",
+        "title": "Setup Git Hooks (CLI)",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.setupCICD",
+        "title": "Setup CI/CD (CLI)",
+        "category": "Baseline Lens"
+      },
+      {
+        "command": "baseline-lens.generateSmartConfig",
+        "title": "Generate Smart Config (CLI)",
+        "category": "Baseline Lens"
       }
     ],
     "menus": {
@@ -172,6 +197,21 @@
         },
         {
           "command": "baseline-lens.generateCIConfig"
+        },
+        {
+          "command": "baseline-lens.showCLICommands"
+        },
+        {
+          "command": "baseline-lens.analyzeProject"
+        },
+        {
+          "command": "baseline-lens.setupGitHooks"
+        },
+        {
+          "command": "baseline-lens.setupCICD"
+        },
+        {
+          "command": "baseline-lens.generateSmartConfig"
         }
       ]
     },
@@ -478,8 +518,5 @@
     "parse5": "^7.1.2",
     "postcss": "^8.4.20",
     "web-features": "^0.8.0"
-  },
-  "bin": {
-    "baseline-lens": "./out/cli/index.js"
   }
 }

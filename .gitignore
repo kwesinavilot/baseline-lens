@@ -3,6 +3,8 @@ out/
 dist/
 *.vsix
 
+.kiro
+
 node_modules/
 
 *.log

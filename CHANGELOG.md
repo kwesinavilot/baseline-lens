@@ -5,6 +5,36 @@ All notable changes to the "Baseline Lens" extension will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2025-01-03
+
+### Added
+- **CLI Integration & Supercharged Workflow**
+  - Seamless integration with Baseline Lens CLI for enhanced development workflows
+  - Automatic CLI detection with status bar integration showing availability
+  - Enhanced commands when CLI is available: Project Analysis, Git Hooks Setup, CI/CD Configuration, Smart Config Generation
+  - CLI command menu accessible via Command Palette for quick access to all CLI features
+  - Terminal integration for running CLI commands directly from VS Code
+  - Smart install prompts when CLI features are accessed without CLI installed
+  - Progressive enhancement - extension works fully without CLI, enhanced when both are present
+  - Shared configuration support between extension and CLI using `.baseline-lens.json`
+
+- **Enhanced Project Setup**
+  - Smart project detection and framework-specific configuration generation
+  - Git hooks setup for pre-commit and pre-push compatibility checking
+  - CI/CD configuration generation for GitHub Actions, GitLab CI, Azure Pipelines, and Jenkins
+  - Team collaboration features with shared configuration and automated setup
+
+- **CLI Integration Documentation**
+  - Comprehensive CLI integration guide with installation, usage, and best practices
+  - Feature matrix comparing extension-only, CLI-only, and combined usage
+  - Migration guide for existing users to add CLI capabilities
+  - Advanced usage examples with custom workflows and keyboard shortcuts
+
+### Changed
+- Enhanced status bar to show CLI availability and provide quick access to CLI commands
+- Updated Command Palette with CLI-specific commands when CLI is detected
+- Improved extension architecture to support optional CLI integration without dependencies
+
 ## [0.11.0] - 2025-01-03
 
 ### Added
